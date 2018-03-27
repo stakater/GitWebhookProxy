@@ -1,2 +1,2 @@
 # JenkinsProxy
-A proxy to let webhooks reach Jenkins running behind a firewall
+A proxy to let webhooks to reach a Jenkins instance running behind a firewall
