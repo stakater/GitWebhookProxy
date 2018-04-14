@@ -8,3 +8,7 @@ Jenkins is awesome and matchless tool for both CI & CD; but unfortunately its a 
 ## SOLUTION
 
 This little proxy makes webhooks start working again!
+
+## STATUS
+
+WORK IN PROGRESS
