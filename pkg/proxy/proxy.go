@@ -12,11 +12,33 @@ import (
 )
 
 type Proxy struct {
-	provider string
-	secret   string
+	provider     string
+	allowedPaths []string
+	secret       string
+}
+
+func (p *Proxy) isPathAllowed(path string) bool {
+	// All paths allowed
+	if len(p.allowedPaths) == 0 {
+		return true
+	}
+
+	// Check if given passed exists in allowedPaths
+	for _, p := range p.allowedPaths {
+		if p == path {
+			return true
+		}
+	}
+	return false
 }
 
 func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+
+	if !p.isPathAllowed(r.URL.Path) {
+		log.Printf("Not allowed to proxy path: '%s'", r.URL.Path)
+		http.Error(w, "Not allowed to proxy path: '"+r.URL.Path+"'", http.StatusForbidden)
+		return
+	}
 
 	provider, err := providers.NewProvider(p.provider, p.secret)
 	if err != nil {
@@ -41,11 +63,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 	w.Write([]byte(s))
 }
 
-func HelloWorld(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	w.Write([]byte("Hello World"))
-}
-
-func NewProxy(listenAddress string, provider string, secret string) {
+func NewProxy(listenAddress string, allowedPaths []string, provider string, secret string) {
 	// Validate Params
 	if len(strings.TrimSpace(listenAddress)) == 0 {
 		panic("Cannot create Proxy with empty listenAddress")
@@ -55,13 +73,31 @@ func NewProxy(listenAddress string, provider string, secret string) {
 	}
 
 	proxy := Proxy{
-		provider: provider,
-		secret:   secret,
+		provider:     provider,
+		allowedPaths: allowedPaths,
+		secret:       secret,
 	}
 
 	router := httprouter.New()
-	router.GET("/", HelloWorld)
-	router.POST("/", proxy.proxyRequest)
+
+	// Register the root path only if it is allowed
+	rootExists := false
+	if len(allowedPaths) == 0 {
+		rootExists = true
+	} else {
+		for _, p := range allowedPaths {
+			if p == "/" {
+				rootExists = true
+			}
+		}
+	}
+
+	if rootExists {
+		router.POST("/", proxy.proxyRequest)
+	}
+
+	//TODO: make :path optional and remove root logic above
+	router.POST("/:path", proxy.proxyRequest)
 
 	log.Printf("Listening at: %s", listenAddress)
 

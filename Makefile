@@ -4,4 +4,4 @@ build:
 	go build -o proxy
 
 run: build
-	./proxy -upstreamUrl http://testurl -secret mysecret
+	./proxy -upstreamUrl http://testurl -secret mysecret #-allowPath /github-webhook -allowPath /project
