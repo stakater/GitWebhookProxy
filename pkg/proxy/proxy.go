@@ -1,41 +1,69 @@
 package proxy
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
+	"github.com/julienschmidt/httprouter"
+	"github.com/stakater/JenkinsProxy/pkg/parser"
 	"github.com/stakater/JenkinsProxy/pkg/providers"
 )
 
 type Proxy struct {
-	secret string
+	provider string
+	secret   string
 }
 
-func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(r.Header.Get("X-GitHub-Delivery")))
+func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 
-	provider, err := providers.NewProvider("github", p.secret)
+	provider, err := providers.NewProvider(p.provider, p.secret)
 	if err != nil {
-		log.Printf("ERORRRRRR %s", err)
+		log.Printf("Error creating provider: %s", err)
+		http.Error(w, "Error creating Provider", http.StatusInternalServerError)
 		return
 	}
 
-	hook, err := provider.GetHook(r)
+	hook, err := parser.Parse(r, provider)
 	if err != nil {
-		log.Printf("ERORRRRRR %s", err)
+		log.Printf("Eror Parsing Hook: %s", err)
+		http.Error(w, "Error parsing Hook: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	w.Write([]byte(hook.Id))
+	if !provider.Validate(*hook) {
+		log.Printf("Eror Validating Hook: %s", err)
+		http.Error(w, "Error validating Hook", http.StatusBadRequest)
+	}
+
+	s := fmt.Sprintf("%v", hook)
+	w.Write([]byte(s))
 }
 
-func NewProxy(listenAddress string, secret string) {
+func HelloWorld(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Write([]byte("Hello World"))
+}
 
-	proxy := Proxy{secret: secret}
-	http.HandleFunc("/", proxy.proxyRequest)
+func NewProxy(listenAddress string, provider string, secret string) {
+	// Validate Params
+	if len(strings.TrimSpace(listenAddress)) == 0 {
+		panic("Cannot create Proxy with empty listenAddress")
+	}
+	if len(strings.TrimSpace(secret)) == 0 {
+		panic("Cannot create Proxy with empty secret")
+	}
+
+	proxy := Proxy{
+		provider: provider,
+		secret:   secret,
+	}
+
+	router := httprouter.New()
+	router.GET("/", HelloWorld)
+	router.POST("/", proxy.proxyRequest)
 
 	log.Printf("Listening at: %s", listenAddress)
-	if err := http.ListenAndServe(listenAddress, nil); err != nil {
-		panic(err)
-	}
+
+	log.Fatal(http.ListenAndServe(listenAddress, router))
 }
