@@ -54,14 +54,12 @@ func validateRequiredFlags() {
 }
 
 func main() {
-	//TODO: paths allowed
-	allowedPaths.Set("/")
-	flag.Var(&allowedPaths, "allowedPaths", "Paths allowed to be forwarded via proxy")
+	flag.Var(&allowedPaths, "allowPath", "Paths allowed to be forwarded via proxy. (All paths are allowed by default)")
 
 	flag.Parse()
 	validateRequiredFlags()
+	lowerProvider := strings.ToLower(*provider)
 
 	log.Println("Stakater Git WebHook Proxy started ...")
-
-	proxy.NewProxy(*listenAddress, *provider, *secret)
+	proxy.NewProxy(*listenAddress, allowedPaths, lowerProvider, *secret)
 }
