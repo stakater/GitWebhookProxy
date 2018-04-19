@@ -1,7 +1,7 @@
 package providers
 
 import (
-	"net/http"
+	"errors"
 	"strings"
 )
 
@@ -11,8 +11,9 @@ const (
 )
 
 type Provider interface {
-	GetHook(req *http.Request) (Hook, error)
-	validate() bool
+	GetHeaderKeys() []string
+	GetTokenHeaderKey() string
+	Validate(hook Hook) bool
 }
 
 func NewProvider(provider string, secret string) (Provider, error) {
@@ -22,14 +23,11 @@ func NewProvider(provider string, secret string) (Provider, error) {
 	// case GitlabProviderKind:
 	// 	return NewGitlabProvider(secret)
 	default:
-		return NewGithubProvider(secret)
+		return nil, errors.New("Unknown Provider git '" + provider + "' specified")
 	}
 }
 
 type Hook struct {
-	Id    string
-	Event string
-	// Token or Signature
-	Token   string
 	Payload []byte
+	Headers map[string]string
 }
