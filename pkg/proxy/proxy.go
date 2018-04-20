@@ -7,12 +7,14 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/parnurzeal/gorequest"
 	"github.com/stakater/JenkinsProxy/pkg/parser"
 	"github.com/stakater/JenkinsProxy/pkg/providers"
 )
 
 type Proxy struct {
 	provider     string
+	upstreamUrl  string
 	allowedPaths []string
 	secret       string
 }
@@ -30,6 +32,23 @@ func (p *Proxy) isPathAllowed(path string) bool {
 		}
 	}
 	return false
+}
+
+func (p *Proxy) redirect(hook *providers.Hook, path string) {
+	request := gorequest.New()
+
+	// Set Headers from hook
+	for key, value := range hook.Headers {
+		request.Set(key, value)
+	}
+
+	//TODO: Client unable to set multiple headers dynamically
+	_, _, errs := request.Post(p.upstreamUrl+path).Send(hook.Payload).Set("X-Gitlab-Token", "lol").End()
+
+	fmt.Println(request.Header.Get("X-Gitlab-Token"))
+	if errs != nil {
+		log.Fatalf("error: %s\n", errs)
+	}
 }
 
 func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -60,9 +79,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
-	//TODO: Create new request and forward to upstream
-	s := fmt.Sprintf("%v", hook)
-	w.Write([]byte(s))
+	p.redirect(hook, r.URL.Path)
 }
 
 // Health Check Endpoint
@@ -70,7 +87,8 @@ func (p *Proxy) health(w http.ResponseWriter, r *http.Request, params httprouter
 	w.WriteHeader(200)
 }
 
-func NewProxy(listenAddress string, allowedPaths []string, provider string, secret string) {
+//TODO: move params to object
+func NewProxy(listenAddress string, upstreamUrl string, allowedPaths []string, provider string, secret string) {
 	// Validate Params
 	if len(strings.TrimSpace(listenAddress)) == 0 {
 		panic("Cannot create Proxy with empty listenAddress")
@@ -81,6 +99,7 @@ func NewProxy(listenAddress string, allowedPaths []string, provider string, secr
 
 	proxy := Proxy{
 		provider:     provider,
+		upstreamUrl:  upstreamUrl,
 		allowedPaths: allowedPaths,
 		secret:       secret,
 	}
