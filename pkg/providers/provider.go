@@ -12,7 +12,7 @@ const (
 
 type Provider interface {
 	GetHeaderKeys() []string
-	GetTokenHeaderKey() string
+	// GetTokenHeaderKey() string
 	Validate(hook Hook) bool
 }
 
@@ -20,8 +20,8 @@ func NewProvider(provider string, secret string) (Provider, error) {
 	switch strings.ToLower(provider) {
 	case GithubProviderKind:
 		return NewGithubProvider(secret)
-	// case GitlabProviderKind:
-	// 	return NewGitlabProvider(secret)
+	case GitlabProviderKind:
+		return NewGitlabProvider(secret)
 	default:
 		return nil, errors.New("Unknown Provider git '" + provider + "' specified")
 	}
