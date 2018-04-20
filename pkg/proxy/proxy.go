@@ -25,7 +25,7 @@ func (p *Proxy) isPathAllowed(path string) bool {
 
 	// Check if given passed exists in allowedPaths
 	for _, p := range p.allowedPaths {
-		if p == path {
+		if strings.TrimSuffix(p, "/") == strings.TrimSuffix(path, "/") {
 			return true
 		}
 	}
@@ -57,10 +57,17 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 	if !provider.Validate(*hook) {
 		log.Printf("Eror Validating Hook: %s", err)
 		http.Error(w, "Error validating Hook", http.StatusBadRequest)
+		return
 	}
 
+	//TODO: Create new request and forward to upstream
 	s := fmt.Sprintf("%v", hook)
 	w.Write([]byte(s))
+}
+
+// Health Check Endpoint
+func (p *Proxy) health(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	w.WriteHeader(200)
 }
 
 func NewProxy(listenAddress string, allowedPaths []string, provider string, secret string) {
@@ -79,27 +86,9 @@ func NewProxy(listenAddress string, allowedPaths []string, provider string, secr
 	}
 
 	router := httprouter.New()
-
-	// Register the root path only if it is allowed
-	rootExists := false
-	if len(allowedPaths) == 0 {
-		rootExists = true
-	} else {
-		for _, p := range allowedPaths {
-			if p == "/" {
-				rootExists = true
-			}
-		}
-	}
-
-	if rootExists {
-		router.POST("/", proxy.proxyRequest)
-	}
-
-	//TODO: make :path optional and remove root logic above
-	router.POST("/:path", proxy.proxyRequest)
+	router.GET("/health", proxy.health)
+	router.POST("/*path", proxy.proxyRequest)
 
 	log.Printf("Listening at: %s", listenAddress)
-
 	log.Fatal(http.ListenAndServe(listenAddress, router))
 }
