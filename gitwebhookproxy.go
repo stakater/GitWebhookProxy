@@ -61,5 +61,5 @@ func main() {
 	lowerProvider := strings.ToLower(*provider)
 
 	log.Println("Stakater Git WebHook Proxy started ...")
-	proxy.NewProxy(*listenAddress, allowedPaths, lowerProvider, *secret)
+	proxy.NewProxy(*listenAddress, *upstreamUrl, allowedPaths, lowerProvider, *secret)
 }
