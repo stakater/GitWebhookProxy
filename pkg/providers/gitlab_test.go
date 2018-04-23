@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	secret = "myGitLabTestSecret"
+	gitlabTestSecret = "myGitLabTestSecret"
 )
 
 func TestNewGitlabProvider(t *testing.T) {
@@ -22,10 +22,10 @@ func TestNewGitlabProvider(t *testing.T) {
 		{
 			name: "TestNewGitlabProviderWithCorrectSecret",
 			args: args{
-				secret: secret,
+				secret: gitlabTestSecret,
 			},
 			want: &GitlabProvider{
-				secret: secret,
+				secret: gitlabTestSecret,
 			},
 			wantErr: false,
 		},
@@ -98,7 +98,7 @@ func TestGitlabProvider_Validate(t *testing.T) {
 		{
 			name: "TestValidateWithEmptyTokenValue",
 			fields: fields{
-				secret: secret,
+				secret: gitlabTestSecret,
 			},
 			args: args{
 				hook: Hook{
@@ -112,7 +112,7 @@ func TestGitlabProvider_Validate(t *testing.T) {
 		{
 			name: "TestValidateWithEmptyHeaders",
 			fields: fields{
-				secret: secret,
+				secret: gitlabTestSecret,
 			},
 			args: args{
 				hook: Hook{
@@ -124,7 +124,7 @@ func TestGitlabProvider_Validate(t *testing.T) {
 		{
 			name: "TestValidateWithWrongTokenValue",
 			fields: fields{
-				secret: secret,
+				secret: gitlabTestSecret,
 			},
 			args: args{
 				hook: Hook{
@@ -139,12 +139,12 @@ func TestGitlabProvider_Validate(t *testing.T) {
 		{
 			name: "TestValidateWithCorrectTokenValue",
 			fields: fields{
-				secret: secret,
+				secret: gitlabTestSecret,
 			},
 			args: args{
 				hook: Hook{
 					Headers: map[string]string{
-						XGitlabToken: secret,
+						XGitlabToken: gitlabTestSecret,
 					},
 					Payload: nil,
 				},
@@ -154,7 +154,7 @@ func TestGitlabProvider_Validate(t *testing.T) {
 		{
 			name: "TestValidateWithWrongHeaderKey",
 			fields: fields{
-				secret: secret,
+				secret: gitlabTestSecret,
 			},
 			args: args{
 				hook: Hook{
@@ -169,7 +169,7 @@ func TestGitlabProvider_Validate(t *testing.T) {
 		{
 			name: "TestValidateWithNilHeaders",
 			fields: fields{
-				secret: secret,
+				secret: gitlabTestSecret,
 			},
 			args: args{
 				hook: Hook{
@@ -182,7 +182,7 @@ func TestGitlabProvider_Validate(t *testing.T) {
 		{
 			name: "TestValidateWithNoHookArg",
 			fields: fields{
-				secret: secret,
+				secret: gitlabTestSecret,
 			},
 			args: args{},
 			want: false,
@@ -195,7 +195,7 @@ func TestGitlabProvider_Validate(t *testing.T) {
 			args: args{
 				hook: Hook{
 					Headers: map[string]string{
-						XGitlabToken: secret,
+						XGitlabToken: gitlabTestSecret,
 					},
 					Payload: nil,
 				},
@@ -210,7 +210,7 @@ func TestGitlabProvider_Validate(t *testing.T) {
 			args: args{
 				hook: Hook{
 					Headers: map[string]string{
-						XGitlabToken: secret,
+						XGitlabToken: gitlabTestSecret,
 					},
 					Payload: nil,
 				},
@@ -223,7 +223,7 @@ func TestGitlabProvider_Validate(t *testing.T) {
 			args: args{
 				hook: Hook{
 					Headers: map[string]string{
-						XGitlabToken: secret,
+						XGitlabToken: gitlabTestSecret,
 					},
 					Payload: nil,
 				},
