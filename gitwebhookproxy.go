@@ -36,11 +36,11 @@ var allowedPaths arrayFlags
 func validateRequiredFlags() {
 	isValid := true
 	if len(strings.TrimSpace(*upstreamUrl)) == 0 {
-		fmt.Println("Required flag 'upstreamUrl' not specified")
+		log.Println("Required flag 'upstreamUrl' not specified")
 		isValid = false
 	}
 	if len(strings.TrimSpace(*secret)) == 0 {
-		fmt.Println("Required flag 'secret' not specified")
+		log.Println("Required flag 'secret' not specified")
 		isValid = false
 	}
 
