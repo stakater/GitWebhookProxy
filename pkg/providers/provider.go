@@ -12,7 +12,6 @@ const (
 
 type Provider interface {
 	GetHeaderKeys() []string
-	// GetTokenHeaderKey() string
 	Validate(hook Hook) bool
 }
 

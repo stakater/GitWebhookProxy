@@ -43,10 +43,8 @@ func (p *GithubProvider) GetHeaderKeys() []string {
 	}
 }
 
-// func (p *GithubProvider) GetTokenHeaderKey() string {
-// 	return XGitHubSignature
-// }
-
+// Github Signature Validation:
+// https://developer.github.com/webhooks/securing/#validating-payloads-from-github
 func (p *GithubProvider) Validate(hook Hook) bool {
 	// githubSignature := hook.Headers[XGitHubSignature]
 	// if len(githubSignature) != SignatureLength ||
