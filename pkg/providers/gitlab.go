@@ -32,6 +32,8 @@ func (p *GitlabProvider) GetHeaderKeys() []string {
 	}
 }
 
+// Gitlab token validation:
+// https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token
 func (p *GitlabProvider) Validate(hook Hook) bool {
 	token := hook.Headers[XGitlabToken]
 	if len(token) <= 0 {
