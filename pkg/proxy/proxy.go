@@ -1,7 +1,6 @@
 package proxy
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -34,21 +33,18 @@ func (p *Proxy) isPathAllowed(path string) bool {
 	return false
 }
 
-func (p *Proxy) redirect(hook *providers.Hook, path string) {
-	request := gorequest.New()
+func (p *Proxy) redirect(hook *providers.Hook, path string) (gorequest.Response, []error) {
+	// Set SetDoNotClearSuperAgent to true so that request
+	// agent is not reset on POST call
+	request := gorequest.New().SetDoNotClearSuperAgent(true)
 
 	// Set Headers from hook
 	for key, value := range hook.Headers {
-		request.Set(key, value)
+		request.AppendHeader(key, value)
 	}
 
-	//TODO: Client unable to set multiple headers dynamically
-	_, _, errs := request.Post(p.upstreamUrl+path).Send(hook.Payload).Set("X-Gitlab-Token", "lol").End()
-
-	fmt.Println(request.Header.Get("X-Gitlab-Token"))
-	if errs != nil {
-		log.Fatalf("error: %s\n", errs)
-	}
+	resp, _, errs := request.Post(p.upstreamUrl + path).Send(hook.Payload).End()
+	return resp, errs
 }
 
 func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -79,7 +75,15 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
-	p.redirect(hook, r.URL.Path)
+	resp, errs := p.redirect(hook, r.URL.Path)
+	if errs != nil {
+		log.Printf("Error Redirecting '%s' to upstream '%s': %s\n", r.URL.Path, p.upstreamUrl, errs)
+		http.Error(w, "Error Redirecting '"+r.URL.Path+"' to upstream '"+p.upstreamUrl+"'", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Redirected incomming request '%s' to '%s' with Response: '%s'\n",
+		r.URL.Path, p.upstreamUrl, resp.Status)
 }
 
 // Health Check Endpoint
