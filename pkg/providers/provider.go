@@ -16,13 +16,17 @@ type Provider interface {
 }
 
 func NewProvider(provider string, secret string) (Provider, error) {
+	if len(provider) == 0 {
+		return nil, errors.New("Empty provider string specified")
+	}
+
 	switch strings.ToLower(provider) {
 	case GithubProviderKind:
 		return NewGithubProvider(secret)
 	case GitlabProviderKind:
 		return NewGitlabProvider(secret)
 	default:
-		return nil, errors.New("Unknown Provider git '" + provider + "' specified")
+		return nil, errors.New("Unknown Git Provider '" + provider + "' specified")
 	}
 }
 
