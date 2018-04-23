@@ -88,6 +88,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 
 // Health Check Endpoint
 func (p *Proxy) health(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	w.Write([]byte("I'm Healthy and I know it! ;) "))
 	w.WriteHeader(200)
 }
 
