@@ -1,37 +1,23 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
+	"github.com/namsral/flag"
 	"github.com/stakater/JenkinsProxy/pkg/proxy"
 )
 
-// For allowing multiple flag values
-type arrayFlags []string
-
-func (af *arrayFlags) String() string {
-	return strings.Join(*af, " ")
-}
-
-func (af *arrayFlags) Set(value string) error {
-	*af = append(*af, strings.TrimSpace(value))
-	return nil
-}
-
-// end
-
-// proxy --listenAddress 8008 --provider github --secret mysecret
 var (
-	listenAddress = flag.String("listen", ":8080", "Address on which the proxy listens.")
-	upstreamUrl   = flag.String("upstreamUrl", "", "URL to which the proxy requests will be forwarded (required)")
-	secret        = flag.String("secret", "", "Secret of the Webhook API (required)")
-	provider      = flag.String("provider", "github", "Git Provider which generates the Webhook")
+	flagSet       = flag.NewFlagSetWithEnvPrefix(os.Args[0], "GWP", 0)
+	listenAddress = flagSet.String("listen", ":8080", "Address on which the proxy listens.")
+	upstreamUrl   = flagSet.String("upstreamUrl", "", "URL to which the proxy requests will be forwarded (required)")
+	secret        = flagSet.String("secret", "", "Secret of the Webhook API (required)")
+	provider      = flagSet.String("provider", "github", "Git Provider which generates the Webhook")
+	allowedPaths  = flagSet.String("allowedPaths", "", "Comma-Separated String List of allowed paths")
 )
-
-var allowedPaths arrayFlags
 
 func validateRequiredFlags() {
 	isValid := true
@@ -46,7 +32,7 @@ func validateRequiredFlags() {
 
 	if !isValid {
 		fmt.Println("")
-		flag.Usage()
+		flagSet.Usage()
 		fmt.Println("")
 
 		panic("See Flag Usage")
@@ -54,12 +40,16 @@ func validateRequiredFlags() {
 }
 
 func main() {
-	flag.Var(&allowedPaths, "allowPath", "Paths allowed to be forwarded via proxy. (All paths are allowed by default)")
-
-	flag.Parse()
+	flagSet.Parse(os.Args[1:])
 	validateRequiredFlags()
 	lowerProvider := strings.ToLower(*provider)
 
-	log.Println("Stakater Git WebHook Proxy started ...")
-	proxy.NewProxy(*listenAddress, *upstreamUrl, allowedPaths, lowerProvider, *secret)
+	// Split Comma-Separated list into an array
+	var allowedPathsArray []string
+	if len(*allowedPaths) > 0 {
+		allowedPathsArray = strings.Split(*allowedPaths, ",")
+	}
+
+	log.Printf("Stakater Git WebHook Proxy started with provider '%s'\n", lowerProvider)
+	proxy.NewProxy(*listenAddress, *upstreamUrl, allowedPathsArray, lowerProvider, *secret)
 }

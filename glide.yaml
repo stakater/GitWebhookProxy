@@ -4,3 +4,5 @@ import:
   version: adbc77eec0d91467376ca515bc3a14b8434d0f18
 - package: github.com/parnurzeal/gorequest
   version: 8e3aed27fe49f7fdc765dad067845f600fc984e8
+- package: github.com/namsral/flag
+  version: 67f268f20922975c067ed799e4be6bacf152208c
