@@ -260,7 +260,107 @@ func TestProxy_redirect(t *testing.T) {
 			wantStatusCode:     http.StatusOK,
 			wantRedirectedHost: "httpbin.org",
 		},
-		//TODO: With get url and different values
+		{
+			name: "TestRedirectWithGetUpstream",
+			fields: fields{
+				provider:     "gitlab",
+				upstreamURL:  "https://httpbin.org",
+				allowedPaths: []string{},
+				secret:       "dummy",
+			},
+			args: args{
+				path: "/get",
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode: http.StatusMethodNotAllowed,
+		},
+		{
+			name: "TestRedirectWithEmptyPath",
+			fields: fields{
+				provider:     "github",
+				upstreamURL:  "https://httpbin.org/post",
+				allowedPaths: []string{},
+				secret:       "dummy",
+			},
+			args: args{
+				path: "",
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode:     http.StatusOK,
+			wantRedirectedHost: "httpbin.org",
+		},
+		{
+			name: "TestRedirectWithEmptyPath",
+			fields: fields{
+				provider:     "github",
+				upstreamURL:  "https://httpbin.org/post",
+				allowedPaths: []string{},
+				secret:       "dummy",
+			},
+			args: args{
+				path: "",
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode:     http.StatusOK,
+			wantRedirectedHost: "httpbin.org",
+		},
+		{
+			name: "TestRedirectWithNilHost",
+			fields: fields{
+				provider:     "github",
+				upstreamURL:  "https://httpbin.org",
+				allowedPaths: []string{},
+				secret:       "dummy",
+			},
+			args: args{
+				path: "/post",
+				hook: nil,
+			},
+			wantErr: true,
+		},
+		{
+			name: "TestRedirectWithInvalidUrl",
+			fields: fields{
+				provider:     "gitlab",
+				upstreamURL:  "https://invalidurl",
+				allowedPaths: []string{},
+				secret:       "dummy",
+			},
+			args: args{
+				path: "/post",
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantErr: true,
+		},
+		{
+			name: "TestRedirectWithInvalidUrlScheme",
+			fields: fields{
+				provider:     "gitlab",
+				upstreamURL:  "htttpsss://httpbin.org",
+				allowedPaths: []string{},
+				secret:       "dummy",
+			},
+			args: args{
+				path: "/post",
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantErr: true,
+		},
+		{
+			name: "TestRedirectWithUrlWithoutScheme",
+			fields: fields{
+				provider:     "gitlab",
+				upstreamURL:  "httpbin.org",
+				allowedPaths: []string{},
+				secret:       "dummy",
+			},
+			args: args{
+				path: "/post",
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode:     http.StatusOK,
+			wantRedirectedHost: "httpbin.org",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -277,14 +377,18 @@ func TestProxy_redirect(t *testing.T) {
 				return
 			}
 
-			if gotResp.StatusCode != tt.wantStatusCode {
-				t.Errorf("Proxy.redirect() got StatusCode in response= %v, want %v",
-					gotResp.StatusCode, tt.wantStatusCode)
-			}
+			if gotResp != nil && tt.wantErr == true {
+				if gotResp.StatusCode != tt.wantStatusCode {
+					t.Errorf("Proxy.redirect() got StatusCode in response= %v, want %v",
+						gotResp.StatusCode, tt.wantStatusCode)
+					return
+				}
 
-			if gotResp.Request.Host != tt.wantRedirectedHost {
-				t.Errorf("Proxy.redirect() got Redirected Host in response= %v, want Redirected Host= %v",
-					gotResp.Request.Host, tt.wantRedirectedHost)
+				if gotResp.Request.Host != tt.wantRedirectedHost {
+					t.Errorf("Proxy.redirect() got Redirected Host in response= %v, want Redirected Host= %v",
+						gotResp.Request.Host, tt.wantRedirectedHost)
+					return
+				}
 			}
 		})
 	}
@@ -408,6 +512,7 @@ func TestNewProxy(t *testing.T) {
 		args args
 	}{
 		// TODO: Add test cases.
+		//https://stackoverflow.com/questions/46778600/golang-execute-function-after-http-listenandserve
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
