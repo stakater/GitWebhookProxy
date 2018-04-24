@@ -1,8 +1,10 @@
 package proxy
 
 import (
+	"errors"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
@@ -35,6 +37,9 @@ func (p *Proxy) isPathAllowed(path string) bool {
 }
 
 func (p *Proxy) redirect(hook *providers.Hook, path string) (gorequest.Response, []error) {
+	if hook == nil {
+		return nil, []error{errors.New("Cannot redirect with nil Hook")}
+	}
 	// Set SetDoNotClearSuperAgent to true so that request
 	// agent is not reset on POST call
 	request := gorequest.New().SetDoNotClearSuperAgent(true)
@@ -44,7 +49,18 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (gorequest.Response,
 		request.AppendHeader(key, value)
 	}
 
-	resp, _, errs := request.Post(p.upstreamURL + path).Send(hook.Payload).End()
+	// Parse url to check validity
+	url, err := url.Parse(p.upstreamURL + path)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	// Assign default scheme as http if not specified
+	if url.Scheme == "" {
+		url.Scheme = "http"
+	}
+
+	resp, _, errs := request.Post(url.String()).Send(hook.Payload).End()
 
 	return resp, errs
 }
