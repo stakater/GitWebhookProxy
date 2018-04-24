@@ -13,7 +13,7 @@ import (
 var (
 	flagSet       = flag.NewFlagSetWithEnvPrefix(os.Args[0], "GWP", 0)
 	listenAddress = flagSet.String("listen", ":8080", "Address on which the proxy listens.")
-	upstreamUrl   = flagSet.String("upstreamUrl", "", "URL to which the proxy requests will be forwarded (required)")
+	upstreamURL   = flagSet.String("upstreamURL", "", "URL to which the proxy requests will be forwarded (required)")
 	secret        = flagSet.String("secret", "", "Secret of the Webhook API (required)")
 	provider      = flagSet.String("provider", "github", "Git Provider which generates the Webhook")
 	allowedPaths  = flagSet.String("allowedPaths", "", "Comma-Separated String List of allowed paths")
@@ -21,8 +21,8 @@ var (
 
 func validateRequiredFlags() {
 	isValid := true
-	if len(strings.TrimSpace(*upstreamUrl)) == 0 {
-		log.Println("Required flag 'upstreamUrl' not specified")
+	if len(strings.TrimSpace(*upstreamURL)) == 0 {
+		log.Println("Required flag 'upstreamURL' not specified")
 		isValid = false
 	}
 	if len(strings.TrimSpace(*secret)) == 0 {
@@ -51,5 +51,5 @@ func main() {
 	}
 
 	log.Printf("Stakater Git WebHook Proxy started with provider '%s'\n", lowerProvider)
-	proxy.NewProxy(*listenAddress, *upstreamUrl, allowedPathsArray, lowerProvider, *secret)
+	proxy.NewProxy(*listenAddress, *upstreamURL, allowedPathsArray, lowerProvider, *secret)
 }

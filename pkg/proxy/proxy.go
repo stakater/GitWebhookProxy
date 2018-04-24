@@ -13,7 +13,7 @@ import (
 
 type Proxy struct {
 	provider     string
-	upstreamUrl  string
+	upstreamURL  string
 	allowedPaths []string
 	secret       string
 }
@@ -26,7 +26,8 @@ func (p *Proxy) isPathAllowed(path string) bool {
 
 	// Check if given passed exists in allowedPaths
 	for _, p := range p.allowedPaths {
-		if strings.TrimSuffix(p, "/") == strings.TrimSuffix(path, "/") {
+		if strings.TrimSuffix(strings.TrimSpace(p), "/") ==
+			strings.TrimSuffix(strings.TrimSpace(path), "/") {
 			return true
 		}
 	}
@@ -43,7 +44,10 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (gorequest.Response,
 		request.AppendHeader(key, value)
 	}
 
-	resp, _, errs := request.Post(p.upstreamUrl + path).Send(hook.Payload).End()
+	resp, _, errs := request.Post(p.upstreamURL + path).Send(hook.Payload).End()
+
+	log.Printf("Redirected incomming request '%s' to '%s' with Response: '%s'\n",
+		path, p.upstreamURL, resp.Status)
 	return resp, errs
 }
 
@@ -75,25 +79,22 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
-	resp, errs := p.redirect(hook, r.URL.Path)
+	_, errs := p.redirect(hook, r.URL.Path)
 	if errs != nil {
-		log.Printf("Error Redirecting '%s' to upstream '%s': %s\n", r.URL.Path, p.upstreamUrl, errs)
-		http.Error(w, "Error Redirecting '"+r.URL.Path+"' to upstream '"+p.upstreamUrl+"'", http.StatusInternalServerError)
+		log.Printf("Error Redirecting '%s' to upstream '%s': %s\n", r.URL.Path, p.upstreamURL, errs)
+		http.Error(w, "Error Redirecting '"+r.URL.Path+"' to upstream '"+p.upstreamURL+"'", http.StatusInternalServerError)
 		return
 	}
-
-	log.Printf("Redirected incomming request '%s' to '%s' with Response: '%s'\n",
-		r.URL.Path, p.upstreamUrl, resp.Status)
 }
 
 // Health Check Endpoint
 func (p *Proxy) health(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	w.Write([]byte("I'm Healthy and I know it! ;) "))
 	w.WriteHeader(200)
+	w.Write([]byte("I'm Healthy and I know it! ;) "))
 }
 
 //TODO: move params to object
-func NewProxy(listenAddress string, upstreamUrl string, allowedPaths []string, provider string, secret string) {
+func NewProxy(listenAddress string, upstreamURL string, allowedPaths []string, provider string, secret string) {
 	// Validate Params
 	if len(strings.TrimSpace(listenAddress)) == 0 {
 		panic("Cannot create Proxy with empty listenAddress")
@@ -104,7 +105,7 @@ func NewProxy(listenAddress string, upstreamUrl string, allowedPaths []string, p
 
 	proxy := Proxy{
 		provider:     provider,
-		upstreamUrl:  upstreamUrl,
+		upstreamURL:  upstreamURL,
 		allowedPaths: allowedPaths,
 		secret:       secret,
 	}
