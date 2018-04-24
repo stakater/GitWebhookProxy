@@ -46,8 +46,6 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (gorequest.Response,
 
 	resp, _, errs := request.Post(p.upstreamURL + path).Send(hook.Payload).End()
 
-	log.Printf("Redirected incomming request '%s' to '%s' with Response: '%s'\n",
-		path, p.upstreamURL, resp.Status)
 	return resp, errs
 }
 
@@ -79,12 +77,15 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
-	_, errs := p.redirect(hook, r.URL.Path)
+	resp, errs := p.redirect(hook, r.URL.Path)
 	if errs != nil {
 		log.Printf("Error Redirecting '%s' to upstream '%s': %s\n", r.URL.Path, p.upstreamURL, errs)
 		http.Error(w, "Error Redirecting '"+r.URL.Path+"' to upstream '"+p.upstreamURL+"'", http.StatusInternalServerError)
 		return
 	}
+
+	log.Printf("Redirected incomming request '%s' to '%s' with Response: '%s'\n",
+		r.URL.Path, p.upstreamURL, resp.Status)
 }
 
 // Health Check Endpoint
@@ -93,14 +94,17 @@ func (p *Proxy) health(w http.ResponseWriter, r *http.Request, params httprouter
 	w.Write([]byte("I'm Healthy and I know it! ;) "))
 }
 
-//TODO: move params to object
-func NewProxy(listenAddress string, upstreamURL string, allowedPaths []string, provider string, secret string) {
+func NewProxy(listenAddress string, upstreamURL string, allowedPaths []string,
+	provider string, secret string) {
 	// Validate Params
 	if len(strings.TrimSpace(listenAddress)) == 0 {
 		panic("Cannot create Proxy with empty listenAddress")
 	}
 	if len(strings.TrimSpace(secret)) == 0 {
 		panic("Cannot create Proxy with empty secret")
+	}
+	if len(strings.TrimSpace(upstreamURL)) == 0 {
+		panic("Cannot create Proxy with empty upstreamURL")
 	}
 
 	proxy := Proxy{
