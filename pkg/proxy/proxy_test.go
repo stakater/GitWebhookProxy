@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,6 +14,7 @@ const (
 	proxyGitlabTestSecret = "testSecret"
 	proxyGitlabTestEvent  = "testEvent"
 	proxyGitlabTestBody   = "testBody"
+	httpBinURL            = "https://httpbin.org"
 )
 
 func TestProxy_isPathAllowed(t *testing.T) {
@@ -249,7 +251,7 @@ func TestProxy_redirect(t *testing.T) {
 			name: "TestRedirectWithValidValues",
 			fields: fields{
 				provider:     "gitlab",
-				upstreamURL:  "https://httpbin.org",
+				upstreamURL:  httpBinURL,
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -264,7 +266,7 @@ func TestProxy_redirect(t *testing.T) {
 			name: "TestRedirectWithGetUpstream",
 			fields: fields{
 				provider:     "gitlab",
-				upstreamURL:  "https://httpbin.org",
+				upstreamURL:  httpBinURL,
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -278,7 +280,7 @@ func TestProxy_redirect(t *testing.T) {
 			name: "TestRedirectWithEmptyPath",
 			fields: fields{
 				provider:     "github",
-				upstreamURL:  "https://httpbin.org/post",
+				upstreamURL:  httpBinURL + "/post",
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -293,7 +295,7 @@ func TestProxy_redirect(t *testing.T) {
 			name: "TestRedirectWithEmptyPath",
 			fields: fields{
 				provider:     "github",
-				upstreamURL:  "https://httpbin.org/post",
+				upstreamURL:  httpBinURL + "/post",
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -308,7 +310,7 @@ func TestProxy_redirect(t *testing.T) {
 			name: "TestRedirectWithNilHost",
 			fields: fields{
 				provider:     "github",
-				upstreamURL:  "https://httpbin.org",
+				upstreamURL:  httpBinURL,
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -394,6 +396,27 @@ func TestProxy_redirect(t *testing.T) {
 	}
 }
 
+func createGitlabRequest(method string, path string, tokenHeader string,
+	eventHeader string, body string) *http.Request {
+	req := httptest.NewRequest(method, path, bytes.NewReader([]byte(body)))
+	req.Header.Add(providers.XGitlabToken, tokenHeader)
+	req.Header.Add(providers.XGitlabEvent, eventHeader)
+	return req
+}
+
+func createRequestWithWrongHeadersKeys(method string, path string, tokenHeader string,
+	eventHeader string, body string) *http.Request {
+	req := httptest.NewRequest(method, path, bytes.NewReader([]byte(body)))
+	req.Header.Add("X-Wrong-Token", tokenHeader)
+	req.Header.Add("X-Wrong-Event", eventHeader)
+	return req
+}
+
+func createRequestWithoutHeaders(method string, path string, body string) *http.Request {
+	req := httptest.NewRequest(method, path, bytes.NewReader([]byte(body)))
+	return req
+}
+
 func TestProxy_proxyRequest(t *testing.T) {
 	type fields struct {
 		provider     string
@@ -402,8 +425,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 		secret       string
 	}
 	type args struct {
-		httpMethod string
-		path       string
+		request *http.Request
 	}
 	tests := []struct {
 		name           string
@@ -411,7 +433,229 @@ func TestProxy_proxyRequest(t *testing.T) {
 		args           args
 		wantStatusCode int
 	}{
-		// TODO: Add test cases.
+		{
+			name: "TestProxyRequestWithValidValues",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode: http.StatusOK,
+		},
+		{
+			name: "TestProxyRequestWithInvalidSecretInHeader",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					"InvalidSecret", proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "TestProxyRequestWithEmptySecretInHeader",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					"", proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "TestProxyRequestWithEmptyEventInHeader",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					proxyGitlabTestSecret, "", proxyGitlabTestBody),
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "TestProxyRequestWithWrongHeaderKeys",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createRequestWithWrongHeadersKeys(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "TestProxyRequestWithoutHeaderKeys",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createRequestWithoutHeaders(http.MethodPost, "/post", proxyGitlabTestBody),
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "TestProxyRequestWithUnsupportedUrlPath",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/get",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode: http.StatusMethodNotAllowed,
+		},
+		{
+			name: "TestProxyRequestWithInvalidHttpMethod",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodGet, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode: http.StatusMethodNotAllowed,
+		},
+		{
+			name: "TestProxyRequestWithEmptyBody",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, ""),
+			},
+			wantStatusCode: http.StatusOK,
+		},
+		{
+			name: "TestProxyRequestWithNotAllowedPath",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{"/path1"},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestSecret),
+			},
+			wantStatusCode: http.StatusForbidden,
+		},
+		{
+			name: "TestProxyRequestWithAllowedPath",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{"/post"},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestSecret),
+			},
+			wantStatusCode: http.StatusOK,
+		},
+		{
+			name: "TestProxyRequestWithInvalidUpstreamUrl",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  "invalidurl",
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestSecret),
+			},
+			wantStatusCode: http.StatusInternalServerError,
+		},
+		{
+			name: "TestProxyRequestWithInvalidProvider",
+			fields: fields{
+				provider:     "invalid",
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestSecret),
+			},
+			wantStatusCode: http.StatusInternalServerError,
+		},
+		{
+			name: "TestProxyRequestWithWrongProviderKind",
+			fields: fields{
+				provider:     providers.GithubProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       proxyGitlabTestSecret,
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestSecret),
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "TestProxyRequestWithInvalidSecretInProvider",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       "wrong",
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestSecret),
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "TestProxyRequestWithEmptySecretInProvider",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				secret:       "",
+			},
+			args: args{
+				request: createGitlabRequest(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestSecret),
+			},
+			wantStatusCode: http.StatusInternalServerError,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -424,13 +668,8 @@ func TestProxy_proxyRequest(t *testing.T) {
 			router := httprouter.New()
 			router.POST("/*path", p.proxyRequest)
 
-			req, err := http.NewRequest(tt.args.httpMethod, tt.args.path, nil)
-			if err != nil {
-				t.Fatal(err)
-			}
-
 			rr := httptest.NewRecorder()
-			router.ServeHTTP(rr, req)
+			router.ServeHTTP(rr, tt.args.request)
 
 			if status := rr.Code; status != tt.wantStatusCode {
 				t.Errorf("handler returned wrong status code: got %v want %v",
@@ -460,14 +699,14 @@ func TestProxy_health(t *testing.T) {
 		{
 			name: "TestHealthCheckGet",
 			args: args{
-				httpMethod: "GET",
+				httpMethod: http.MethodGet,
 			},
 			wantStatusCode: http.StatusOK,
 		},
 		{
 			name: "TestHealthCheckPost",
 			args: args{
-				httpMethod: "POST",
+				httpMethod: http.MethodPost,
 			},
 			wantStatusCode: http.StatusMethodNotAllowed,
 		},
