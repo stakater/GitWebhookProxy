@@ -100,6 +100,12 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
+	if resp.StatusCode >= 400 {
+		log.Printf("Error Redirecting '%s' to upstream '%s', Upstream Redirect Status: %s\n", r.URL.Path, p.upstreamURL, resp.Status)
+		http.Error(w, "Error Redirecting '"+r.URL.Path+"' to upstream '"+p.upstreamURL+"' Upstream Redirect Status:"+resp.Status, resp.StatusCode)
+		return
+	}
+
 	log.Printf("Redirected incomming request '%s' to '%s' with Response: '%s'\n",
 		r.URL.Path, p.upstreamURL, resp.Status)
 }
