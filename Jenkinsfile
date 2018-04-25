@@ -7,7 +7,7 @@ String chartPackageName = ""
 
 toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
     container(name: 'tools') {
-        withCurrentRepo([type: "go"]) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+        withCurrentRepo(type: 'go') { def repoUrl, def repoName, def repoOwner, def repoBranch ->
             String srcDir = WORKSPACE
             def kubernetesDir = WORKSPACE + "/kubernetes"
 
