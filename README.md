@@ -13,7 +13,3 @@ This little proxy makes webhooks start working again!
 ## STATUS
 
 WORK IN PROGRESS
-
-## TODO
-
-- Rename to GitWebhookProxy
