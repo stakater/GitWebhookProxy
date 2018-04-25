@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/stakater/JenkinsProxy/pkg/providers"
+	"github.com/stakater/GitWebhookProxy/pkg/providers"
 )
 
 const (

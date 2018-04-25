@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/stakater/JenkinsProxy/pkg/providers"
+	"github.com/stakater/GitWebhookProxy/pkg/providers"
 )
 
 func Parse(req *http.Request, provider providers.Provider) (*providers.Hook, error) {

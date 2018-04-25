@@ -1,4 +1,4 @@
-package: github.com/stakater/JenkinsProxy
+package: github.com/stakater/GitWebhookProxy
 import:
 - package: github.com/julienschmidt/httprouter
   version: adbc77eec0d91467376ca515bc3a14b8434d0f18

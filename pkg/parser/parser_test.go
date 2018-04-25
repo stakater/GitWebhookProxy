@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/stakater/JenkinsProxy/pkg/providers"
+	"github.com/stakater/GitWebhookProxy/pkg/providers"
 )
 
 const (

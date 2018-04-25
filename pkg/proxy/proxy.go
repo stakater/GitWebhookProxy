@@ -9,8 +9,8 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/parnurzeal/gorequest"
-	"github.com/stakater/JenkinsProxy/pkg/parser"
-	"github.com/stakater/JenkinsProxy/pkg/providers"
+	"github.com/stakater/GitWebhookProxy/pkg/parser"
+	"github.com/stakater/GitWebhookProxy/pkg/providers"
 )
 
 type Proxy struct {
