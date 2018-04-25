@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/namsral/flag"
-	"github.com/stakater/JenkinsProxy/pkg/proxy"
+	"github.com/stakater/GitWebhookProxy/pkg/proxy"
 )
 
 var (
