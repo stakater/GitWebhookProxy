@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-@Library('github.com/stakater/fabric8-pipeline-library@master')
+@Library('github.com/stakater/fabric8-pipeline-library@update-withCurrentRepo')
 
 def utils = new io.fabric8.Utils()
 
@@ -7,7 +7,7 @@ String chartPackageName = ""
 
 toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
     container(name: 'tools') {
-        withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+        withCurrentRepo([type: "go"]) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
             String srcDir = WORKSPACE
             def kubernetesDir = WORKSPACE + "/kubernetes"
 
