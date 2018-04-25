@@ -42,7 +42,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 stage('Run Tests') {
                     sh """
                         cd ${srcDir}
-                        go test
+                        go test ./...
                     """
                 }
 
