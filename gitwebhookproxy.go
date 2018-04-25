@@ -51,5 +51,13 @@ func main() {
 	}
 
 	log.Printf("Stakater Git WebHook Proxy started with provider '%s'\n", lowerProvider)
-	proxy.NewProxy(*listenAddress, *upstreamURL, allowedPathsArray, lowerProvider, *secret)
+	p, err := proxy.NewProxy(*upstreamURL, allowedPathsArray, lowerProvider, *secret)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := p.Run(*listenAddress); err != nil {
+		log.Fatal(err)
+	}
+
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/julienschmidt/httprouter"
@@ -738,24 +739,144 @@ func TestProxy_health(t *testing.T) {
 	}
 }
 
-func TestNewProxy(t *testing.T) {
+func TestProxy_Run(t *testing.T) {
+	type fields struct {
+		provider     string
+		upstreamURL  string
+		allowedPaths []string
+		secret       string
+	}
 	type args struct {
 		listenAddress string
-		upstreamURL   string
-		allowedPaths  []string
-		provider      string
-		secret        string
 	}
 	tests := []struct {
-		name string
-		args args
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
 	}{
 		// TODO: Add test cases.
 		//https://stackoverflow.com/questions/46778600/golang-execute-function-after-http-listenandserve
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			NewProxy(tt.args.listenAddress, tt.args.upstreamURL, tt.args.allowedPaths, tt.args.provider, tt.args.secret)
+			p := &Proxy{
+				provider:     tt.fields.provider,
+				upstreamURL:  tt.fields.upstreamURL,
+				allowedPaths: tt.fields.allowedPaths,
+				secret:       tt.fields.secret,
+			}
+			if err := p.Run(tt.args.listenAddress); (err != nil) != tt.wantErr {
+				t.Errorf("Proxy.Run() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestNewProxy(t *testing.T) {
+	type args struct {
+		upstreamURL  string
+		allowedPaths []string
+		provider     string
+		secret       string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *Proxy
+		wantErr bool
+	}{
+		{
+			name: "TestNewProxyWithValidArgs",
+			args: args{
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				provider:     providers.GitlabProviderKind,
+				secret:       proxyGitlabTestSecret,
+			},
+			want: &Proxy{
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				provider:     providers.GitlabProviderKind,
+				secret:       proxyGitlabTestSecret,
+			},
+		},
+		{
+			name: "TestNewProxyWithEmptyUpstreamURL",
+			args: args{
+				upstreamURL:  "",
+				allowedPaths: []string{},
+				provider:     providers.GitlabProviderKind,
+				secret:       proxyGitlabTestSecret,
+			},
+			wantErr: true,
+		},
+		{
+			name: "TestNewProxyWithNilAllowedPaths",
+			args: args{
+				upstreamURL:  httpBinURL,
+				allowedPaths: nil,
+				provider:     providers.GitlabProviderKind,
+				secret:       proxyGitlabTestSecret,
+			},
+			wantErr: true,
+		},
+		{
+			name: "TestNewProxyWithEmtpyProvider",
+			args: args{
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{},
+				provider:     "",
+				secret:       proxyGitlabTestSecret,
+			},
+			wantErr: true,
+		},
+		{
+			name: "TestNewProxyWithEmtpySecret",
+			args: args{
+				upstreamURL:  httpBinURL,
+				allowedPaths: nil,
+				provider:     providers.GitlabProviderKind,
+				secret:       "",
+			},
+			wantErr: true,
+		},
+		{
+			name: "TestNewProxyWithEmtpySecret",
+			args: args{
+				upstreamURL:  httpBinURL,
+				allowedPaths: nil,
+				provider:     providers.GitlabProviderKind,
+				secret:       "",
+			},
+			wantErr: true,
+		},
+		{
+			name: "TestNewProxyWithValidArgsAndAllowedPaths",
+			args: args{
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{"/path1", "/path2"},
+				provider:     providers.GitlabProviderKind,
+				secret:       proxyGitlabTestSecret,
+			},
+			want: &Proxy{
+				upstreamURL:  httpBinURL,
+				allowedPaths: []string{"/path1", "/path2"},
+				provider:     providers.GitlabProviderKind,
+				secret:       proxyGitlabTestSecret,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := NewProxy(tt.args.upstreamURL, tt.args.allowedPaths, tt.args.provider, tt.args.secret)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewProxy() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewProxy() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

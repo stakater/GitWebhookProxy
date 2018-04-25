@@ -116,30 +116,39 @@ func (p *Proxy) health(w http.ResponseWriter, r *http.Request, params httprouter
 	w.Write([]byte("I'm Healthy and I know it! ;) "))
 }
 
-func NewProxy(listenAddress string, upstreamURL string, allowedPaths []string,
-	provider string, secret string) {
-	// Validate Params
+func (p *Proxy) Run(listenAddress string) error {
 	if len(strings.TrimSpace(listenAddress)) == 0 {
 		panic("Cannot create Proxy with empty listenAddress")
 	}
+
+	router := httprouter.New()
+	router.GET("/health", p.health)
+	router.POST("/*path", p.proxyRequest)
+
+	log.Printf("Listening at: %s", listenAddress)
+	return http.ListenAndServe(listenAddress, router)
+}
+
+func NewProxy(upstreamURL string, allowedPaths []string,
+	provider string, secret string) (*Proxy, error) {
+	// Validate Params
 	if len(strings.TrimSpace(secret)) == 0 {
-		panic("Cannot create Proxy with empty secret")
+		return nil, errors.New("Cannot create Proxy with empty secret")
 	}
 	if len(strings.TrimSpace(upstreamURL)) == 0 {
-		panic("Cannot create Proxy with empty upstreamURL")
+		return nil, errors.New("Cannot create Proxy with empty upstreamURL")
+	}
+	if len(strings.TrimSpace(provider)) == 0 {
+		return nil, errors.New("Cannot create Proxy with empty provider")
+	}
+	if allowedPaths == nil {
+		return nil, errors.New("Cannot create Proxy with nil allowedPaths")
 	}
 
-	proxy := Proxy{
+	return &Proxy{
 		provider:     provider,
 		upstreamURL:  upstreamURL,
 		allowedPaths: allowedPaths,
 		secret:       secret,
-	}
-
-	router := httprouter.New()
-	router.GET("/health", proxy.health)
-	router.POST("/*path", proxy.proxyRequest)
-
-	log.Printf("Listening at: %s", listenAddress)
-	log.Fatal(http.ListenAndServe(listenAddress, router))
+	}, nil
 }
