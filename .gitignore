@@ -16,4 +16,6 @@
 .glide/
 .idea/
 vendor
-proxy
+build/docker/gitwebhookproxy
+.vscode
+glide.lock
