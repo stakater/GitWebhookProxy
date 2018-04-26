@@ -75,6 +75,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                             gotplenv ${chartTemplatesDir}/Chart.yaml.tmpl > ${chartDir}/${repoName}/Chart.yaml
                             gotplenv ${chartTemplatesDir}/values.yaml.tmpl > ${chartDir}/${repoName}/values.yaml
 
+                            mkdir -p ${manifestsDir}
                             helm template ${chartDir}/${repoName} -x templates/deployment.yaml > ${manifestsDir}/deployment.yaml
                             helm template ${chartDir}/${repoName} -x templates/configmap.yaml > ${manifestsDir}/configmap.yaml
                             helm template ${chartDir}/${repoName} -x templates/secret.yaml > ${manifestsDir}/secret.yaml
