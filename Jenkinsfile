@@ -89,7 +89,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         git.createRelease(version)
 
                         print "Pushing Tag ${version} to DockerHub"
-                        docker.buildImageWithTag(dockerImage, "latest")
+                        docker.buildImageWithTag(dockerContextDir, dockerImage, "latest")
                         docker.tagImage(dockerImage, "latest", version)
                         docker.pushTag(dockerImage, version)
                         docker.pushTag(dockerImage, "latest")
