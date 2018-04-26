@@ -82,7 +82,6 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                             helm template ${chartDir}/${repoName} -x templates/service.yaml > ${manifestsDir}/service.yaml
                         """
 
-                        git.setUserInfo(${scmVars.GIT_AUTHOR_NAME}, ${scmVars.GIT_AUTHOR_EMAIL})
                         git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
                         print "Pushing Tag ${version} to Git"
