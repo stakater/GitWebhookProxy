@@ -1,0 +1,20 @@
+---
+# Source: GitWebhookProxy/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    fabric8.io/target-platform: kubernetes
+  labels:
+    app: gitwebhookproxy
+    group: com.stakater.platform
+    provider: stakater
+    version: 0.1.0
+    chart: "GitWebhookProxy-0.1.0"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
+  name: gitwebhookproxy
+data:
+    provider: github
+    upstreamURL: https://jenkins.tools.stackator.com
+    allowedPaths: /github-webhook,/project

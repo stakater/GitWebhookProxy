@@ -1,0 +1,31 @@
+---
+# Source: GitWebhookProxy/templates/service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    fabric8.io/ingress.annotations: |-
+      ingress.kubernetes.io/force-ssl-redirect: true
+      kubernetes.io/ingress.class: external
+      monitor.stakater.com/enabled: true
+  labels:
+    expose: "true"
+    app: gitwebhookproxy
+    group: com.stakater.platform
+    provider: stakater
+    version: 0.1.0
+    chart: "GitWebhookProxy-0.1.0"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
+  name: gitwebhookproxy
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: gitwebhookproxy
+    group: com.stakater.platform
+    provider: stakater
