@@ -67,7 +67,7 @@ func TestGithubProvider_GetHeaderKeys(t *testing.T) {
 	}{
 		{
 			name: "TestGetHeaderKeysWithCorrectValues",
-			want: []string{XGitHubDelivery, XGitHubEvent, XGitHubSignature},
+			want: []string{XGitHubDelivery, XGitHubEvent, XHubSignature},
 		},
 	}
 	for _, tt := range tests {
@@ -103,7 +103,7 @@ func TestGithubProvider_Validate(t *testing.T) {
 		// 	args: args{
 		// 		hook: Hook{
 		// 			Headers: map[string]string{
-		// 				XGitHubSignature: "",
+		// 				XHubSignature: "",
 		// 			},
 		// 		},
 		// 	},
@@ -129,7 +129,7 @@ func TestGithubProvider_Validate(t *testing.T) {
 		// 	args: args{
 		// 		hook: Hook{
 		// 			Headers: map[string]string{
-		// 				XGitHubSignature: "IncorrectSecret",
+		// 				XHubSignature: "IncorrectSecret",
 		// 			},
 		// 			Payload: nil,
 		// 		},
@@ -144,7 +144,7 @@ func TestGithubProvider_Validate(t *testing.T) {
 		// 	args: args{
 		// 		hook: Hook{
 		// 			Headers: map[string]string{
-		// 				XGitHubSignature: githubTestSecret,
+		// 				XHubSignature: githubTestSecret,
 		// 			},
 		// 			Payload: nil,
 		// 		},
@@ -195,7 +195,7 @@ func TestGithubProvider_Validate(t *testing.T) {
 		// 	args: args{
 		// 		hook: Hook{
 		// 			Headers: map[string]string{
-		// 				XGitHubSignature: githubTestSecret,
+		// 				XHubSignature: githubTestSecret,
 		// 			},
 		// 			Payload: nil,
 		// 		},
@@ -210,7 +210,7 @@ func TestGithubProvider_Validate(t *testing.T) {
 		// 	args: args{
 		// 		hook: Hook{
 		// 			Headers: map[string]string{
-		// 				XGitHubSignature: githubTestSecret,
+		// 				XHubSignature: githubTestSecret,
 		// 			},
 		// 			Payload: nil,
 		// 		},
@@ -223,7 +223,7 @@ func TestGithubProvider_Validate(t *testing.T) {
 		// 	args: args{
 		// 		hook: Hook{
 		// 			Headers: map[string]string{
-		// 				XGitHubSignature: githubTestSecret,
+		// 				XHubSignature: githubTestSecret,
 		// 			},
 		// 			Payload: nil,
 		// 		},
