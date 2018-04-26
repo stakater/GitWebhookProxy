@@ -8,10 +8,10 @@ gitWebhookProxy:
   labels:
     provider: stakater
     group: com.stakater.platform
-    version: 0.1.1
+    version: 0.1.2
   image:
     name: stakater/gitwebhookproxy
-    tag: "0.1.1"
+    tag: "0.1.2"
     pullPolicy: IfNotPresent
   config:
     provider: github
@@ -20,7 +20,7 @@ gitWebhookProxy:
     secret: "dummysecret"
   service: 
     forceSslRedirect: true
-    ingressClass: external
+    ingressClass: external-ingress
     expose: true
     additionalIngressAnnotations: 
       - key: monitor.stakater.com/enabled
