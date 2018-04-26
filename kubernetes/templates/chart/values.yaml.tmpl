@@ -1,0 +1,33 @@
+# Generated from /kubernetes/templates/chart/values.yaml.tmpl
+
+kubernetes:
+  host: https://kubernetes.default
+
+gitWebhookProxy:
+  namespace: default
+  labels:
+    provider: stakater
+    group: com.stakater.platform
+    version: {{ getenv "VERSION" }}
+  image:
+    name: {{ getenv "DOCKER_IMAGE" }}
+    tag: "{{ getenv "VERSION" }}"
+    pullPolicy: IfNotPresent
+  config:
+    provider: github
+    upstreamURL: "https://jenkins.tools.stackator.com"
+    allowedPaths: "/github-webhook,/project"
+    secret: "dummysecret"
+  service: 
+    forceSslRedirect: true
+    ingressClass: external
+    expose: true
+    additionalIngressAnnotations: 
+      - key: monitor.stakater.com/enabled
+        value: true
+    ports:
+      - name: http
+        port: 80
+        protocol: TCP
+        targetPort: 8080
+

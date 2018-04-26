@@ -1,0 +1,29 @@
+{{- with .Values.gitWebhookProxy.service }}
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    fabric8.io/ingress.annotations: |-
+      ingress.kubernetes.io/force-ssl-redirect: {{ .forceSslRedirect }}
+      kubernetes.io/ingress.class: {{ .ingressClass }}
+      {{- with .additionalIngressAnnotations }}
+      {{- range . }}
+      {{ .key }}: {{ .value }}
+      {{- end }}
+      {{- end }}
+  labels:
+    expose: {{ .expose | quote }}
+{{ include "labels.stakater" $ | indent 4 }}
+{{ include "labels.chart" $ | indent 4 }}
+  name: {{ template "name" $ }}
+spec:
+  ports:
+  {{- range .ports }}
+  - name: {{ .name }}
+    port: {{ .port }}
+    protocol: {{ .protocol }}
+    targetPort: {{ .targetPort }}
+  {{- end }}
+  selector:
+{{ include "labels.selector" $ | indent 4 }}
+{{- end }}

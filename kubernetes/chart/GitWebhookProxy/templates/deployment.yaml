@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+{{ include "labels.stakater" . | indent 4 }}
+{{ include "labels.chart" . | indent 4 }}
+  name: {{ template "name" . }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+{{ include "labels.selector" . | indent 6 }}
+  template:
+    metadata:
+      annotations:
+        configmap.fabric8.io/update-on-change: {{ template "name" . }}
+      labels:
+{{ include "labels.selector" . | indent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: GWP_PROVIDER
+          valueFrom:
+            configMapKeyRef:
+              key: provider
+              name: {{ template "name" . }}
+        - name: GWP_UPSTREAMURL
+          valueFrom:
+            configMapKeyRef:
+              key: upstreamURL
+              name: {{ template "name" . }}
+        - name: GWP_ALLOWEDPATHS
+          valueFrom:
+            configMapKeyRef:
+              key: allowedPaths
+              name: {{ template "name" . }}
+        - name: GWP_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: secret
+              name: {{ template "name" . }}
+        image: "{{ .Values.gitWebhookProxy.image.name }}:{{ .Values.gitWebhookProxy.image.tag }}"
+        imagePullPolicy: {{ .Values.gitWebhookProxy.image.pullPolicy }}
+        name: {{ template "name" . }}
