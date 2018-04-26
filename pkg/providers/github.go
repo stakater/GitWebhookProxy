@@ -10,9 +10,9 @@ import (
 
 // Header constants
 const (
-	XGitHubSignature = "X-GitHub-Signature"
-	XGitHubEvent     = "X-GitHub-Event"
-	XGitHubDelivery  = "X-GitHub-Delivery"
+	XHubSignature   = "X-Hub-Signature"
+	XGitHubEvent    = "X-GitHub-Event"
+	XGitHubDelivery = "X-GitHub-Delivery"
 )
 
 const (
@@ -38,7 +38,7 @@ func (p *GithubProvider) GetHeaderKeys() []string {
 	return []string{
 		XGitHubDelivery,
 		XGitHubEvent,
-		XGitHubSignature,
+		XHubSignature,
 	}
 }
 
@@ -48,7 +48,7 @@ func (p *GithubProvider) GetHeaderKeys() []string {
 // https://developer.github.com/webhooks/securing/#validating-payloads-from-github
 func (p *GithubProvider) Validate(hook Hook) bool {
 
-	githubSignature := hook.Headers[XGitHubSignature]
+	githubSignature := hook.Headers[XHubSignature]
 	if len(githubSignature) != SignatureLength ||
 		!strings.HasPrefix(githubSignature, SignaturePrefix) {
 		return false
