@@ -46,7 +46,7 @@ func main() {
 	lowerProvider := strings.ToLower(*provider)
 
 	// Split Comma-Separated list into an array
-	var allowedPathsArray []string
+	allowedPathsArray := []string{}
 	if len(*allowedPaths) > 0 {
 		allowedPathsArray = strings.Split(*allowedPaths, ",")
 	}
