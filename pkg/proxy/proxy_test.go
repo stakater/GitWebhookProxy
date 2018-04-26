@@ -842,16 +842,6 @@ func TestNewProxy(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "TestNewProxyWithEmtpySecret",
-			args: args{
-				upstreamURL:  httpBinURL,
-				allowedPaths: nil,
-				provider:     providers.GitlabProviderKind,
-				secret:       "",
-			},
-			wantErr: true,
-		},
-		{
 			name: "TestNewProxyWithValidArgsAndAllowedPaths",
 			args: args{
 				upstreamURL:  httpBinURL,
