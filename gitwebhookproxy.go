@@ -32,6 +32,7 @@ func validateRequiredFlags() {
 
 	if !isValid {
 		fmt.Println("")
+		//TODO: Usage not working as expected in flagSet
 		flagSet.Usage()
 		fmt.Println("")
 
