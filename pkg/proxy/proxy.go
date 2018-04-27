@@ -1,17 +1,22 @@
 package proxy
 
 import (
+	"bytes"
 	"errors"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/parnurzeal/gorequest"
 	"github.com/stakater/GitWebhookProxy/pkg/parser"
 	"github.com/stakater/GitWebhookProxy/pkg/providers"
 )
+
+var httpClient = &http.Client{
+	Timeout: time.Second * 30,
+}
 
 type Proxy struct {
 	provider     string
@@ -36,23 +41,15 @@ func (p *Proxy) isPathAllowed(path string) bool {
 	return false
 }
 
-func (p *Proxy) redirect(hook *providers.Hook, path string) (gorequest.Response, []error) {
+func (p *Proxy) redirect(hook *providers.Hook, path string) (*http.Response, error) {
 	if hook == nil {
-		return nil, []error{errors.New("Cannot redirect with nil Hook")}
-	}
-	// Set SetDoNotClearSuperAgent to true so that request
-	// agent is not reset on POST call
-	request := gorequest.New().SetDoNotClearSuperAgent(true)
-
-	// Set Headers from hook
-	for key, value := range hook.Headers {
-		request.AppendHeader(key, value)
+		return nil, errors.New("Cannot redirect with nil Hook")
 	}
 
 	// Parse url to check validity
 	url, err := url.Parse(p.upstreamURL + path)
 	if err != nil {
-		return nil, []error{err}
+		return nil, err
 	}
 
 	// Assign default scheme as http if not specified
@@ -60,9 +57,20 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (gorequest.Response,
 		url.Scheme = "http"
 	}
 
-	resp, _, errs := request.Post(url.String()).Send(hook.Payload).End()
+	// Create Redirect request
+	// TODO: take method as param from original request
+	req, err := http.NewRequest("POST", url.String(), bytes.NewReader(hook.Payload))
+	if err != nil {
+		return nil, err
+	}
 
-	return resp, errs
+	// Set Headers from hook
+	for key, value := range hook.Headers {
+		req.Header.Add(key, value)
+	}
+
+	// Perform redirect
+	return httpClient.Do(req)
 }
 
 func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -94,15 +102,13 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
-	resp, errs := p.redirect(hook, r.URL.Path)
-	if errs != nil {
-		log.Printf("Error Redirecting '%s' to upstream '%s': %s\n", r.URL, p.upstreamURL+r.URL.Path, errs)
+	resp, err := p.redirect(hook, r.URL.Path)
+	if err != nil {
+		log.Printf("Error Redirecting '%s' to upstream '%s': %s\n", r.URL, p.upstreamURL+r.URL.Path, err)
 		http.Error(w, "Error Redirecting '"+r.URL.String()+"' to upstream '"+p.upstreamURL+r.URL.Path+"'", http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("Redirect reponse's: %v\n", resp)
-	log.Printf("Redirect reponse's request: %v\n", resp.Request)
 	if resp.StatusCode >= 400 {
 		log.Printf("Error Redirecting '%s' to upstream '%s', Upstream Redirect Status: %s\n", r.URL, p.upstreamURL+r.URL.Path, resp.Status)
 		http.Error(w, "Error Redirecting '"+r.URL.String()+"' to upstream '"+p.upstreamURL+r.URL.Path+"' Upstream Redirect Status:"+resp.Status, resp.StatusCode)
