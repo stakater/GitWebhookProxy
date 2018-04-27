@@ -63,15 +63,20 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (*http.Response, err
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("request: %v", req)
+	log.Printf("request: %v\n\n", req)
 
 	// Set Headers from hook
 	for key, value := range hook.Headers {
 		req.Header.Add(key, value)
 	}
 
-	log.Printf("request after headers: %v", req)
-
+	log.Printf("request after headers: %v\n\n", req)
+	var payload []byte
+	_, err = req.Body.Read(payload)
+	if err != nil {
+		log.Panic(err)
+	}
+	log.Printf("payload before: %s\n\n", string(payload))
 	// Perform redirect
 	return httpClient.Do(req)
 }
@@ -112,7 +117,14 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
-	log.Printf("Request from response: %v", resp.Request)
+	log.Printf("Request from response: %v\n\n", resp.Request)
+	var payload []byte
+	_, err = resp.Request.Body.Read(payload)
+	if err != nil {
+		log.Panic(err)
+	}
+	log.Printf("payload after: %s\n\n", string(payload))
+
 	if resp.StatusCode >= 400 {
 		log.Printf("Error Redirecting '%s' to upstream '%s', Upstream Redirect Status: %s\n", r.URL, p.upstreamURL+r.URL.Path, resp.Status)
 		http.Error(w, "Error Redirecting '"+r.URL.String()+"' to upstream '"+p.upstreamURL+r.URL.Path+"' Upstream Redirect Status:"+resp.Status, resp.StatusCode)
