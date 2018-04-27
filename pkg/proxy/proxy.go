@@ -63,14 +63,17 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (*http.Response, err
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("request: %v\n\n", req)
 
 	req.Header.Add("Content-Type", "application/json")
 	// Set Headers from hook
 	for key, value := range hook.Headers {
 		req.Header.Add(key, value)
 	}
-
+	log.Printf("------")
+	log.Printf("------")
+	log.Printf("request: %v\n\n", req)
+	log.Printf("------")
+	log.Printf("------")
 	// Perform redirect
 	return httpClient.Do(req)
 }
