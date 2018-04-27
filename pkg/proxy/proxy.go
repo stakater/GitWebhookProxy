@@ -63,6 +63,7 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (*http.Response, err
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("request: %v", req)
 
 	// Set Headers from hook
 	for key, value := range hook.Headers {
