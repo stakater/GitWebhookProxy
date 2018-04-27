@@ -9,7 +9,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
     container(name: 'tools') {
         withCurrentRepo(type: 'go') { def repoUrl, def repoName, def repoOwner, def repoBranch ->
             String srcDir = WORKSPACE
-            def kubernetesDir = WORKSPACE + "/kubernetes"
+            def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
 
             def chartTemplatesDir = kubernetesDir + "/templates/chart"
             def chartDir = kubernetesDir + "/chart"
