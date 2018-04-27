@@ -66,6 +66,7 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (gorequest.Response,
 }
 
 func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	log.Printf("Proxying Request from '%s', to upstream'%s'\n", r.URL, p.upstreamURL+r.URL.Path)
 
 	if !p.isPathAllowed(r.URL.Path) {
 		log.Printf("Not allowed to proxy path: '%s'", r.URL.Path)
@@ -95,19 +96,19 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 
 	resp, errs := p.redirect(hook, r.URL.Path)
 	if errs != nil {
-		log.Printf("Error Redirecting '%s' to upstream '%s': %s\n", r.URL.Path, p.upstreamURL, errs)
-		http.Error(w, "Error Redirecting '"+r.URL.Path+"' to upstream '"+p.upstreamURL+"'", http.StatusInternalServerError)
+		log.Printf("Error Redirecting '%s' to upstream '%s': %s\n", r.URL, p.upstreamURL+r.URL.Path, errs)
+		http.Error(w, "Error Redirecting '"+r.URL.String()+"' to upstream '"+p.upstreamURL+r.URL.Path+"'", http.StatusInternalServerError)
 		return
 	}
 
 	if resp.StatusCode >= 400 {
-		log.Printf("Error Redirecting '%s' to upstream '%s', Upstream Redirect Status: %s\n", r.URL.Path, p.upstreamURL, resp.Status)
-		http.Error(w, "Error Redirecting '"+r.URL.Path+"' to upstream '"+p.upstreamURL+"' Upstream Redirect Status:"+resp.Status, resp.StatusCode)
+		log.Printf("Error Redirecting '%s' to upstream '%s', Upstream Redirect Status: %s\n", r.URL, p.upstreamURL+r.URL.Path, resp.Status)
+		http.Error(w, "Error Redirecting '"+r.URL.String()+"' to upstream '"+p.upstreamURL+r.URL.Path+"' Upstream Redirect Status:"+resp.Status, resp.StatusCode)
 		return
 	}
 
 	log.Printf("Redirected incomming request '%s' to '%s' with Response: '%s'\n",
-		r.URL.Path, p.upstreamURL, resp.Status)
+		r.URL, p.upstreamURL+r.URL.Path, resp.Status)
 }
 
 // Health Check Endpoint
