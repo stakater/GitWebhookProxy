@@ -70,6 +70,8 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (*http.Response, err
 		req.Header.Add(key, value)
 	}
 
+	log.Printf("request after headers: %v", req)
+
 	// Perform redirect
 	return httpClient.Do(req)
 }
@@ -110,6 +112,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
+	log.Printf("Request from response: %v", resp.Request)
 	if resp.StatusCode >= 400 {
 		log.Printf("Error Redirecting '%s' to upstream '%s', Upstream Redirect Status: %s\n", r.URL, p.upstreamURL+r.URL.Path, resp.Status)
 		http.Error(w, "Error Redirecting '"+r.URL.String()+"' to upstream '"+p.upstreamURL+r.URL.Path+"' Upstream Redirect Status:"+resp.Status, resp.StatusCode)
