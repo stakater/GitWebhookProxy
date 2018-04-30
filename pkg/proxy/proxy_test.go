@@ -275,21 +275,7 @@ func TestProxy_redirect(t *testing.T) {
 				path: "/get",
 				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
 			},
-			wantStatusCode: http.StatusMethodNotAllowed,
-		},
-		{
-			name: "TestRedirectWithEmptyPath",
-			fields: fields{
-				provider:     "github",
-				upstreamURL:  httpBinURL + "/post",
-				allowedPaths: []string{},
-				secret:       "dummy",
-			},
-			args: args{
-				path: "",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
-			},
-			wantStatusCode:     http.StatusOK,
+			wantStatusCode:     http.StatusMethodNotAllowed,
 			wantRedirectedHost: "httpbin.org",
 		},
 		{
@@ -308,7 +294,22 @@ func TestProxy_redirect(t *testing.T) {
 			wantRedirectedHost: "httpbin.org",
 		},
 		{
-			name: "TestRedirectWithNilHost",
+			name: "TestRedirectWithEmptyPath",
+			fields: fields{
+				provider:     "github",
+				upstreamURL:  httpBinURL + "/post",
+				allowedPaths: []string{},
+				secret:       "dummy",
+			},
+			args: args{
+				path: "",
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+			},
+			wantStatusCode:     http.StatusOK,
+			wantRedirectedHost: "httpbin.org",
+		},
+		{
+			name: "TestRedirectWithNilHook",
 			fields: fields{
 				provider:     "github",
 				upstreamURL:  httpBinURL,
@@ -380,19 +381,22 @@ func TestProxy_redirect(t *testing.T) {
 				return
 			}
 
-			if gotResp != nil && tt.wantErr == true {
-				if gotResp.StatusCode != tt.wantStatusCode {
-					t.Errorf("Proxy.redirect() got StatusCode in response= %v, want %v",
-						gotResp.StatusCode, tt.wantStatusCode)
-					return
-				}
-
-				if gotResp.Request.Host != tt.wantRedirectedHost {
-					t.Errorf("Proxy.redirect() got Redirected Host in response= %v, want Redirected Host= %v",
-						gotResp.Request.Host, tt.wantRedirectedHost)
-					return
-				}
+			if tt.wantErr == true && gotErrors != nil {
+				return
 			}
+
+			if gotResp.StatusCode != tt.wantStatusCode {
+				t.Errorf("Proxy.redirect() got StatusCode in response= %v, want %v",
+					gotResp.StatusCode, tt.wantStatusCode)
+				return
+			}
+
+			if gotResp.Request.Host != tt.wantRedirectedHost {
+				t.Errorf("Proxy.redirect() got Redirected Host in response= %v, want Redirected Host= %v",
+					gotResp.Request.Host, tt.wantRedirectedHost)
+				return
+			}
+
 		})
 	}
 }
