@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -61,6 +62,7 @@ func (p *GithubProvider) Validate(hook Hook) bool {
 // the hash computed by GitHub sent as a header
 func IsValidPayload(secret, headerHash string, payload []byte) bool {
 	hash := HashPayload(secret, payload)
+	log.Printf("Calculated Hash: %s", hash)
 	return hmac.Equal(
 		[]byte(hash),
 		[]byte(headerHash),
