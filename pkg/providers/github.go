@@ -62,9 +62,7 @@ func (p *GithubProvider) Validate(hook Hook) bool {
 		panic("error decoding")
 	}
 
-	//TODO: Return this
-	hmac.Equal(signBody([]byte(p.secret), hook.Payload), decodedSignature)
-	return true
+	return hmac.Equal(signBody([]byte(p.secret), hook.Payload), decodedSignature)
 }
 
 func signBody(secret []byte, body []byte) []byte {
