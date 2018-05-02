@@ -3,8 +3,8 @@ package providers
 import (
 	"crypto/hmac"
 	"crypto/sha1"
-	"encoding/hex"
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -45,7 +45,6 @@ func (p *GithubProvider) GetHeaderKeys() []string {
 // TODO: Update implementation and tests
 
 // Github Signature Validation:
-// https://developer.github.com/webhooks/securing/#validating-payloads-from-github
 func (p *GithubProvider) Validate(hook Hook) bool {
 
 	githubSignature := hook.Headers[XHubSignature]
@@ -54,19 +53,26 @@ func (p *GithubProvider) Validate(hook Hook) bool {
 		return false
 	}
 
-	// decodedSignature := make([]byte, 20)
-	// hex.Decode(decodedSignature, []byte(githubSignature[len(SignaturePrefix):]))
+	return IsValidPayload(p.secret, githubSignature[len(SignaturePrefix):], hook.Payload)
 
-	decodedSignature, err := hex.DecodeString(githubSignature[len(SignaturePrefix):])
-	if err != nil {
-		panic("error decoding")
-	}
-
-	return hmac.Equal(signBody([]byte(p.secret), hook.Payload), decodedSignature)
 }
 
-func signBody(secret []byte, body []byte) []byte {
-	computed := hmac.New(sha1.New, secret)
-	computed.Write(body)
-	return computed.Sum(nil)
+// IsValidPayload checks if the github payload's hash fits with
+// the hash computed by GitHub sent as a header
+func IsValidPayload(secret, headerHash string, payload []byte) bool {
+	hash := HashPayload(secret, payload)
+	return hmac.Equal(
+		[]byte(hash),
+		[]byte(headerHash),
+	)
+}
+
+// HashPayload computes the hash of payload's body according to the webhook's secret token
+// see https://developer.github.com/webhooks/securing/#validating-payloads-from-github
+// returning the hash as a hexadecimal string
+func HashPayload(secret string, playloadBody []byte) string {
+	hm := hmac.New(sha1.New, []byte(secret))
+	hm.Write(playloadBody)
+	sum := hm.Sum(nil)
+	return fmt.Sprintf("%x", sum)
 }
