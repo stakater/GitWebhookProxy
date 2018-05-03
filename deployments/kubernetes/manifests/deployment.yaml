@@ -7,8 +7,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.21
-    chart: "GitWebhookProxy-0.2.21"
+    version: 0.2.22
+    chart: "GitWebhookProxy-0.2.22"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -55,6 +55,6 @@ spec:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:0.2.21"
+        image: "stakater/gitwebhookproxy:0.2.22"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
