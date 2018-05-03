@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-@Library('github.com/stakater/fabric8-pipeline-library@master')
+@Library('github.com/stakater/fabric8-pipeline-library@add-render-methods')
 
 def utils = new io.fabric8.Utils()
 
@@ -25,6 +25,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             
             def git = new io.stakater.vc.Git()
             def helm = new io.stakater.charts.Helm()
+            def templates = new io.stakater.charts.Templates()
             def common = new io.stakater.Common()
             def chartManager = new io.stakater.charts.ChartManager()
             def docker = new io.stakater.containers.Docker()
@@ -76,19 +77,10 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                             echo "VERSION := ${version}" > Makefile
                         """
 
-                        //TODO: Create generic method for this
-                        sh """
-                            export VERSION=${version}
-                            export DOCKER_IMAGE=${dockerImage}
-                            gotplenv ${chartTemplatesDir}/Chart.yaml.tmpl > ${chartDir}/${repoName}/Chart.yaml
-                            gotplenv ${chartTemplatesDir}/values.yaml.tmpl > ${chartDir}/${repoName}/values.yaml
-
-                            mkdir -p ${manifestsDir}
-                            helm template ${chartDir}/${repoName} -x templates/deployment.yaml > ${manifestsDir}/deployment.yaml
-                            helm template ${chartDir}/${repoName} -x templates/configmap.yaml > ${manifestsDir}/configmap.yaml
-                            helm template ${chartDir}/${repoName} -x templates/secret.yaml > ${manifestsDir}/secret.yaml
-                            helm template ${chartDir}/${repoName} -x templates/service.yaml > ${manifestsDir}/service.yaml
-                        """
+                        // Render chart from templates
+                        templates.renderChart(chartTemplatesDir, chartDir, repoName, version, dockerImage)
+                        // Generate manifests from chart
+                        templates.generateManifests(chartDir, repoName, manifestsDir)
 
                         git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
