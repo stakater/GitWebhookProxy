@@ -59,6 +59,14 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         docker.buildImageWithTag(dockerContextDir, dockerImage, dockerImageVersion)
                         docker.pushTag(dockerImage, dockerImageVersion)
                     }
+                    
+                    stage('Notify') {
+                        def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
+                        slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
+
+                        def commentMessage = "Image is available for testing. `docker pull ${dockerImageWithTag}`"
+                        git.addCommentToPullRequest(commentMessage)
+                    }
                 } else if (utils.isCD()) {
                     stage('CD: Tag and Push') {
                         print "Generating New Version"
@@ -109,6 +117,14 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                         chartManager.uploadToChartMuseum(chartDir, repoName, chartPackageName, cmUsername, cmPassword)
                     }
+
+                    stage('Notify') {
+                        def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
+                        slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
+
+                        def commentMessage = "Image is available for testing. `docker pull ${dockerImageWithTag}`"
+                        git.addCommentToPullRequest(commentMessage)
+                    }
                 }
             }
             catch(e) {
@@ -118,13 +134,6 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 git.addCommentToPullRequest(commentMessage)
 
                 throw e
-            }
-            stage('Notify') {
-                def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
-                slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
-
-                def commentMessage = "Image is available for testing. `docker pull ${dockerImageWithTag}`"
-                git.addCommentToPullRequest(commentMessage)
             }
         }
     }
