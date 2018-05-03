@@ -65,16 +65,16 @@ func TestParse(t *testing.T) {
 		{
 			name: "TestParseWithCorrectRequestValues",
 			args: args{
-				req: createGitlabRequest("post", "/dummy", parserGitlabTestSecret,
+				req: createGitlabRequest(http.MethodPost, "/dummy", parserGitlabTestSecret,
 					parserGitlabTestEvent, parserGitlabTestBody),
 				provider: createGitlabProvider(parserGitlabTestSecret),
 			},
-			want: createGitlabHook(parserGitlabTestSecret, parserGitlabTestEvent, parserGitlabTestBody, "post"),
+			want: createGitlabHook(parserGitlabTestSecret, parserGitlabTestEvent, parserGitlabTestBody, http.MethodPost),
 		},
 		{
 			name: "TestParseWithEmptyTokenHeaderValue",
 			args: args{
-				req: createGitlabRequest("post", "/dummy", "",
+				req: createGitlabRequest(http.MethodPost, "/dummy", "",
 					parserGitlabTestEvent, parserGitlabTestBody),
 				provider: createGitlabProvider(parserGitlabTestSecret),
 			},
@@ -83,7 +83,7 @@ func TestParse(t *testing.T) {
 		{
 			name: "TestParseWithNoEventHeaderValue",
 			args: args{
-				req: createGitlabRequest("post", "/dummy", parserGitlabTestSecret,
+				req: createGitlabRequest(http.MethodPost, "/dummy", parserGitlabTestSecret,
 					"", parserGitlabTestBody),
 				provider: createGitlabProvider(parserGitlabTestSecret),
 			},
@@ -92,16 +92,16 @@ func TestParse(t *testing.T) {
 		{
 			name: "TestParseWithNoBody",
 			args: args{
-				req: createGitlabRequest("post", "/dummy", parserGitlabTestSecret,
+				req: createGitlabRequest(http.MethodPost, "/dummy", parserGitlabTestSecret,
 					parserGitlabTestEvent, ""),
 				provider: createGitlabProvider(parserGitlabTestSecret),
 			},
-			want: createGitlabHook(parserGitlabTestSecret, parserGitlabTestEvent, "", "post"),
+			want: createGitlabHook(parserGitlabTestSecret, parserGitlabTestEvent, "", http.MethodPost),
 		},
 		{
 			name: "TestParseWithNoHeaders",
 			args: args{
-				req:      httptest.NewRequest("post", "/dummy", bytes.NewReader([]byte(parserGitlabTestBody))),
+				req:      httptest.NewRequest(http.MethodPost, "/dummy", bytes.NewReader([]byte(parserGitlabTestBody))),
 				provider: createGitlabProvider(parserGitlabTestSecret),
 			},
 			wantErr: true,
@@ -109,7 +109,7 @@ func TestParse(t *testing.T) {
 		{
 			name: "TestParseWithWrongHeaderKeys",
 			args: args{
-				req: createRequestWithWrongHeaders("post", "/dummy", parserGitlabTestSecret,
+				req: createRequestWithWrongHeaders(http.MethodPost, "/dummy", parserGitlabTestSecret,
 					parserGitlabTestEvent, parserGitlabTestBody),
 				provider: createGitlabProvider(parserGitlabTestSecret),
 			},
