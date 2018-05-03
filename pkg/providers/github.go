@@ -40,6 +40,7 @@ func (p *GithubProvider) GetHeaderKeys() []string {
 		XGitHubDelivery,
 		XGitHubEvent,
 		XHubSignature,
+		ContentTypeHeader,
 	}
 }
 
