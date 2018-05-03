@@ -61,7 +61,6 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (*http.Response, err
 	}
 
 	// Create Redirect request
-	// TODO: take method as param from original request
 	req, err := http.NewRequest(hook.RequestMethod, url.String(), bytes.NewBuffer(hook.Payload))
 
 	if err != nil {
