@@ -3,6 +3,7 @@ package proxy
 import (
 	"bytes"
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -120,6 +121,16 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 
 	log.Printf("Redirected incomming request '%s' to '%s' with Response: '%s'\n",
 		r.URL, p.upstreamURL+r.URL.Path, resp.Status)
+
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error Reading upstream '%s' response body\n", r.URL)
+		http.Error(w, "Error Reading upstream '"+p.upstreamURL+r.URL.Path+"' Response body", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(resp.StatusCode)
+	w.Write(responseBody)
 }
 
 // Health Check Endpoint
@@ -128,6 +139,7 @@ func (p *Proxy) health(w http.ResponseWriter, r *http.Request, params httprouter
 	w.Write([]byte("I'm Healthy and I know it! ;) "))
 }
 
+// Run starts Proxy server
 func (p *Proxy) Run(listenAddress string) error {
 	if len(strings.TrimSpace(listenAddress)) == 0 {
 		panic("Cannot create Proxy with empty listenAddress")
