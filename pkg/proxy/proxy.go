@@ -14,6 +14,12 @@ import (
 	"github.com/stakater/GitWebhookProxy/pkg/providers"
 )
 
+var (
+	httpClient = &http.Client{
+		Timeout: time.Second * 30,
+	}
+)
+
 type Proxy struct {
 	provider     string
 	upstreamURL  string
@@ -62,16 +68,12 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (*http.Response, err
 		return nil, err
 	}
 
-	if val, ok := hook.Headers[providers.ContentTypeHeader]; ok {
-		req.Header.Add(providers.ContentTypeHeader, val)
-	}
-
 	// Set Headers from hook
 	for key, value := range hook.Headers {
 		req.Header.Add(key, value)
 	}
 
-	return p.httpClient.Do(req)
+	return httpClient.Do(req)
 
 }
 
@@ -161,8 +163,5 @@ func NewProxy(upstreamURL string, allowedPaths []string,
 		upstreamURL:  upstreamURL,
 		allowedPaths: allowedPaths,
 		secret:       secret,
-		httpClient: &http.Client{
-			Timeout: time.Second * 60,
-		},
 	}, nil
 }
