@@ -67,7 +67,7 @@ func TestGithubProvider_GetHeaderKeys(t *testing.T) {
 	}{
 		{
 			name: "TestGetHeaderKeysWithCorrectValues",
-			want: []string{XGitHubDelivery, XGitHubEvent, XHubSignature},
+			want: []string{XGitHubDelivery, XGitHubEvent, XHubSignature, ContentTypeHeader},
 		},
 	}
 	for _, tt := range tests {

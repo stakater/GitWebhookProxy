@@ -21,6 +21,7 @@ func createGitlabRequest(method string, path string, tokenHeader string,
 	req := httptest.NewRequest(method, path, bytes.NewReader([]byte(body)))
 	req.Header.Add(providers.XGitlabToken, tokenHeader)
 	req.Header.Add(providers.XGitlabEvent, eventHeader)
+	req.Header.Add(providers.ContentTypeHeader, providers.DefaultContentTypeHeaderValue)
 	return req
 }
 
@@ -37,13 +38,15 @@ func createGitlabProvider(secret string) providers.Provider {
 	return provider
 }
 
-func createGitlabHook(tokenHeader string, tokenEvent string, body string) *providers.Hook {
+func createGitlabHook(tokenHeader string, tokenEvent string, body string, method string) *providers.Hook {
 	return &providers.Hook{
 		Headers: map[string]string{
-			providers.XGitlabToken: tokenHeader,
-			providers.XGitlabEvent: tokenEvent,
+			providers.XGitlabToken:      tokenHeader,
+			providers.XGitlabEvent:      tokenEvent,
+			providers.ContentTypeHeader: providers.DefaultContentTypeHeaderValue,
 		},
-		Payload: []byte(body),
+		Payload:       []byte(body),
+		RequestMethod: method,
 	}
 }
 
@@ -66,7 +69,7 @@ func TestParse(t *testing.T) {
 					parserGitlabTestEvent, parserGitlabTestBody),
 				provider: createGitlabProvider(parserGitlabTestSecret),
 			},
-			want: createGitlabHook(parserGitlabTestSecret, parserGitlabTestEvent, parserGitlabTestBody),
+			want: createGitlabHook(parserGitlabTestSecret, parserGitlabTestEvent, parserGitlabTestBody, "post"),
 		},
 		{
 			name: "TestParseWithEmptyTokenHeaderValue",
@@ -93,7 +96,7 @@ func TestParse(t *testing.T) {
 					parserGitlabTestEvent, ""),
 				provider: createGitlabProvider(parserGitlabTestSecret),
 			},
-			want: createGitlabHook(parserGitlabTestSecret, parserGitlabTestEvent, ""),
+			want: createGitlabHook(parserGitlabTestSecret, parserGitlabTestEvent, "", "post"),
 		},
 		{
 			name: "TestParseWithNoHeaders",
