@@ -95,141 +95,141 @@ func TestGitlabProvider_Validate(t *testing.T) {
 		args   args
 		want   bool
 	}{
-		// {
-		// 	name: "TestValidateWithEmptyTokenValue",
-		// 	fields: fields{
-		// 		secret: gitlabTestSecret,
-		// 	},
-		// 	args: args{
-		// 		hook: Hook{
-		// 			Headers: map[string]string{
-		// 				XGitlabToken: "",
-		// 			},
-		// 		},
-		// 	},
-		// 	want: false,
-		// },
-		// {
-		// 	name: "TestValidateWithEmptyHeaders",
-		// 	fields: fields{
-		// 		secret: gitlabTestSecret,
-		// 	},
-		// 	args: args{
-		// 		hook: Hook{
-		// 			Headers: map[string]string{},
-		// 		},
-		// 	},
-		// 	want: false,
-		// },
-		// {
-		// 	name: "TestValidateWithWrongTokenValue",
-		// 	fields: fields{
-		// 		secret: gitlabTestSecret,
-		// 	},
-		// 	args: args{
-		// 		hook: Hook{
-		// 			Headers: map[string]string{
-		// 				XGitlabToken: "IncorrectSecret",
-		// 			},
-		// 			Payload: nil,
-		// 		},
-		// 	},
-		// 	want: false,
-		// },
-		// {
-		// 	name: "TestValidateWithCorrectTokenValue",
-		// 	fields: fields{
-		// 		secret: gitlabTestSecret,
-		// 	},
-		// 	args: args{
-		// 		hook: Hook{
-		// 			Headers: map[string]string{
-		// 				XGitlabToken: gitlabTestSecret,
-		// 			},
-		// 			Payload: nil,
-		// 		},
-		// 	},
-		// 	want: true,
-		// },
-		// {
-		// 	name: "TestValidateWithWrongHeaderKey",
-		// 	fields: fields{
-		// 		secret: gitlabTestSecret,
-		// 	},
-		// 	args: args{
-		// 		hook: Hook{
-		// 			Headers: map[string]string{
-		// 				"X-Wrong-Token": "IncorrectSecret",
-		// 			},
-		// 			Payload: nil,
-		// 		},
-		// 	},
-		// 	want: false,
-		// },
-		// {
-		// 	name: "TestValidateWithNilHeaders",
-		// 	fields: fields{
-		// 		secret: gitlabTestSecret,
-		// 	},
-		// 	args: args{
-		// 		hook: Hook{
-		// 			Headers: nil,
-		// 			Payload: nil,
-		// 		},
-		// 	},
-		// 	want: false,
-		// },
-		// {
-		// 	name: "TestValidateWithNoHookArg",
-		// 	fields: fields{
-		// 		secret: gitlabTestSecret,
-		// 	},
-		// 	args: args{},
-		// 	want: false,
-		// },
-		// {
-		// 	name: "TestValidateWithWrongSecretInProxy",
-		// 	fields: fields{
-		// 		secret: "WrongSecret",
-		// 	},
-		// 	args: args{
-		// 		hook: Hook{
-		// 			Headers: map[string]string{
-		// 				XGitlabToken: gitlabTestSecret,
-		// 			},
-		// 			Payload: nil,
-		// 		},
-		// 	},
-		// 	want: false,
-		// },
-		// {
-		// 	name: "TestValidateWithEmptySecretInProxy",
-		// 	fields: fields{
-		// 		secret: "",
-		// 	},
-		// 	args: args{
-		// 		hook: Hook{
-		// 			Headers: map[string]string{
-		// 				XGitlabToken: gitlabTestSecret,
-		// 			},
-		// 			Payload: nil,
-		// 		},
-		// 	},
-		// 	want: false,
-		// },
-		// {
-		// 	name:   "TestValidateWithNoSecretInProxy",
-		// 	fields: fields{},
-		// 	args: args{
-		// 		hook: Hook{
-		// 			Headers: map[string]string{
-		// 				XGitlabToken: gitlabTestSecret,
-		// 			},
-		// 			Payload: nil,
-		// 		},
-		// 	},
-		// 	want: false,
-		// },
+		{
+			name: "TestValidateWithEmptyTokenValue",
+			fields: fields{
+				secret: gitlabTestSecret,
+			},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{
+						XGitlabToken: "",
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "TestValidateWithEmptyHeaders",
+			fields: fields{
+				secret: gitlabTestSecret,
+			},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "TestValidateWithWrongTokenValue",
+			fields: fields{
+				secret: gitlabTestSecret,
+			},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{
+						XGitlabToken: "IncorrectSecret",
+					},
+					Payload: nil,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "TestValidateWithCorrectTokenValue",
+			fields: fields{
+				secret: gitlabTestSecret,
+			},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{
+						XGitlabToken: gitlabTestSecret,
+					},
+					Payload: nil,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "TestValidateWithWrongHeaderKey",
+			fields: fields{
+				secret: gitlabTestSecret,
+			},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{
+						"X-Wrong-Token": "IncorrectSecret",
+					},
+					Payload: nil,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "TestValidateWithNilHeaders",
+			fields: fields{
+				secret: gitlabTestSecret,
+			},
+			args: args{
+				hook: Hook{
+					Headers: nil,
+					Payload: nil,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "TestValidateWithNoHookArg",
+			fields: fields{
+				secret: gitlabTestSecret,
+			},
+			args: args{},
+			want: false,
+		},
+		{
+			name: "TestValidateWithWrongSecretInProxy",
+			fields: fields{
+				secret: "WrongSecret",
+			},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{
+						XGitlabToken: gitlabTestSecret,
+					},
+					Payload: nil,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "TestValidateWithEmptySecretInProxy",
+			fields: fields{
+				secret: "",
+			},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{
+						XGitlabToken: gitlabTestSecret,
+					},
+					Payload: nil,
+				},
+			},
+			want: false,
+		},
+		{
+			name:   "TestValidateWithNoSecretInProxy",
+			fields: fields{},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{
+						XGitlabToken: gitlabTestSecret,
+					},
+					Payload: nil,
+				},
+			},
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
