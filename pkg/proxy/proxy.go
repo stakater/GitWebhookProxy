@@ -1,14 +1,15 @@
 package proxy
 
 import (
+	"bytes"
 	"errors"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/parnurzeal/gorequest"
 	"github.com/stakater/GitWebhookProxy/pkg/parser"
 	"github.com/stakater/GitWebhookProxy/pkg/providers"
 )
@@ -18,6 +19,7 @@ type Proxy struct {
 	upstreamURL  string
 	allowedPaths []string
 	secret       string
+	httpClient   *http.Client
 }
 
 func (p *Proxy) isPathAllowed(path string) bool {
@@ -36,23 +38,15 @@ func (p *Proxy) isPathAllowed(path string) bool {
 	return false
 }
 
-func (p *Proxy) redirect(hook *providers.Hook, path string) (gorequest.Response, []error) {
+func (p *Proxy) redirect(hook *providers.Hook, path string) (*http.Response, error) {
 	if hook == nil {
-		return nil, []error{errors.New("Cannot redirect with nil Hook")}
-	}
-	// Set SetDoNotClearSuperAgent to true so that request
-	// agent is not reset on POST call
-	request := gorequest.New().SetDoNotClearSuperAgent(true)
-
-	// Set Headers from hook
-	for key, value := range hook.Headers {
-		request.AppendHeader(key, value)
+		return nil, errors.New("Cannot redirect with nil Hook")
 	}
 
 	// Parse url to check validity
 	url, err := url.Parse(p.upstreamURL + path)
 	if err != nil {
-		return nil, []error{err}
+		return nil, err
 	}
 
 	// Assign default scheme as http if not specified
@@ -60,9 +54,25 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (gorequest.Response,
 		url.Scheme = "http"
 	}
 
-	resp, _, errs := request.Post(url.String()).Send(hook.Payload).End()
+	// Create Redirect request
+	// TODO: take method as param from original request
+	req, err := http.NewRequest(hook.RequestMethod, url.String(), bytes.NewBuffer(hook.Payload))
 
-	return resp, errs
+	if err != nil {
+		return nil, err
+	}
+
+	if val, ok := hook.Headers[providers.ContentTypeHeader]; ok {
+		req.Header.Add(providers.ContentTypeHeader, val)
+	}
+
+	// Set Headers from hook
+	for key, value := range hook.Headers {
+		req.Header.Add(key, value)
+	}
+
+	return p.httpClient.Do(req)
+
 }
 
 func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -89,7 +99,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 	}
 
 	if !provider.Validate(*hook) {
-		log.Printf("Eror Validating Hook: %s", err)
+		log.Printf("Eror Validating Hook: %v", err)
 		http.Error(w, "Error validating Hook", http.StatusBadRequest)
 		return
 	}
@@ -151,5 +161,8 @@ func NewProxy(upstreamURL string, allowedPaths []string,
 		upstreamURL:  upstreamURL,
 		allowedPaths: allowedPaths,
 		secret:       secret,
+		httpClient: &http.Client{
+			Timeout: time.Second * 60,
+		},
 	}, nil
 }
