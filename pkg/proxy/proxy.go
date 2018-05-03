@@ -139,6 +139,7 @@ func (p *Proxy) health(w http.ResponseWriter, r *http.Request, params httprouter
 	w.Write([]byte("I'm Healthy and I know it! ;) "))
 }
 
+// Run starts Proxy server
 func (p *Proxy) Run(listenAddress string) error {
 	if len(strings.TrimSpace(listenAddress)) == 0 {
 		panic("Cannot create Proxy with empty listenAddress")
