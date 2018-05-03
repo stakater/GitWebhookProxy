@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	GithubProviderKind = "github"
-	GitlabProviderKind = "gitlab"
-	ContentTypeHeader  = "Content-Type"
+	GithubProviderKind            = "github"
+	GitlabProviderKind            = "gitlab"
+	ContentTypeHeader             = "Content-Type"
+	DefaultContentTypeHeaderValue = "application/json"
 )
 
 type Provider interface {
