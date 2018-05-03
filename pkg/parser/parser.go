@@ -27,5 +27,7 @@ func Parse(req *http.Request, provider providers.Provider) (*providers.Hook, err
 		hook.Payload = body
 	}
 
+	hook.RequestMethod = req.Method
+
 	return hook, nil
 }

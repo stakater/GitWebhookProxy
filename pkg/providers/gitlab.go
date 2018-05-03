@@ -29,6 +29,7 @@ func (p *GitlabProvider) GetHeaderKeys() []string {
 	return []string{
 		XGitlabToken,
 		XGitlabEvent,
+		ContentTypeHeader,
 	}
 }
 

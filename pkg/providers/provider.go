@@ -6,8 +6,10 @@ import (
 )
 
 const (
-	GithubProviderKind = "github"
-	GitlabProviderKind = "gitlab"
+	GithubProviderKind            = "github"
+	GitlabProviderKind            = "gitlab"
+	ContentTypeHeader             = "Content-Type"
+	DefaultContentTypeHeaderValue = "application/json"
 )
 
 type Provider interface {
@@ -31,6 +33,7 @@ func NewProvider(provider string, secret string) (Provider, error) {
 }
 
 type Hook struct {
-	Payload []byte
-	Headers map[string]string
+	Payload       []byte
+	Headers       map[string]string
+	RequestMethod string
 }

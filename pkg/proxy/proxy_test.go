@@ -219,13 +219,14 @@ func TestProxy_isPathAllowed(t *testing.T) {
 	}
 }
 
-func createGitlabHook(tokenHeader string, tokenEvent string, body string) *providers.Hook {
+func createGitlabHook(tokenHeader string, tokenEvent string, body string, method string) *providers.Hook {
 	return &providers.Hook{
 		Headers: map[string]string{
 			providers.XGitlabToken: tokenHeader,
 			providers.XGitlabEvent: tokenEvent,
 		},
-		Payload: []byte(body),
+		Payload:       []byte(body),
+		RequestMethod: method,
 	}
 }
 
@@ -258,7 +259,7 @@ func TestProxy_redirect(t *testing.T) {
 			},
 			args: args{
 				path: "/post",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
 			wantRedirectedHost: "httpbin.org",
@@ -273,7 +274,7 @@ func TestProxy_redirect(t *testing.T) {
 			},
 			args: args{
 				path: "/get",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusMethodNotAllowed,
 			wantRedirectedHost: "httpbin.org",
@@ -288,7 +289,7 @@ func TestProxy_redirect(t *testing.T) {
 			},
 			args: args{
 				path: "",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
 			wantRedirectedHost: "httpbin.org",
@@ -303,7 +304,7 @@ func TestProxy_redirect(t *testing.T) {
 			},
 			args: args{
 				path: "",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
 			wantRedirectedHost: "httpbin.org",
@@ -332,7 +333,7 @@ func TestProxy_redirect(t *testing.T) {
 			},
 			args: args{
 				path: "/post",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantErr: true,
 		},
@@ -346,7 +347,7 @@ func TestProxy_redirect(t *testing.T) {
 			},
 			args: args{
 				path: "/post",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantErr: true,
 		},
@@ -360,7 +361,7 @@ func TestProxy_redirect(t *testing.T) {
 			},
 			args: args{
 				path: "/post",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody),
+				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
 			wantRedirectedHost: "httpbin.org",
@@ -406,6 +407,7 @@ func createGitlabRequest(method string, path string, tokenHeader string,
 	req := httptest.NewRequest(method, path, bytes.NewReader([]byte(body)))
 	req.Header.Add(providers.XGitlabToken, tokenHeader)
 	req.Header.Add(providers.XGitlabEvent, eventHeader)
+	req.Header.Add(providers.ContentTypeHeader, providers.DefaultContentTypeHeaderValue)
 	return req
 }
 
