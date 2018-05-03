@@ -56,7 +56,6 @@ func (p *GithubProvider) Validate(hook Hook) bool {
 	}
 
 	return IsValidPayload(p.secret, githubSignature[len(SignaturePrefix):], hook.Payload)
-
 }
 
 // IsValidPayload checks if the github payload's hash fits with
