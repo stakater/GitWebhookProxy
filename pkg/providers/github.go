@@ -3,10 +3,18 @@ package providers
 import (
 	"crypto/hmac"
 	"crypto/sha1"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"strings"
+)
+
+// Event defines a GitHub hook event type
+type Event string
+
+const (
+	GithubPushEvent Event = "push"
 )
 
 // Header constants
@@ -45,7 +53,6 @@ func (p *GithubProvider) GetHeaderKeys() []string {
 }
 
 // TODO: Update implementation and tests
-
 // Github Signature Validation:
 func (p *GithubProvider) Validate(hook Hook) bool {
 
@@ -56,6 +63,20 @@ func (p *GithubProvider) Validate(hook Hook) bool {
 	}
 
 	return IsValidPayload(p.secret, githubSignature[len(SignaturePrefix):], hook.Payload)
+}
+
+func (p *GithubProvider) GetCommitter(hook Hook) string {
+	var payloadData GithubPushPayload
+	if err := json.Unmarshal(hook.Payload, &payloadData); err != nil {
+		return ""
+	}
+
+	eventType := Event(hook.Headers[XGitHubEvent])
+	switch eventType {
+	case GithubPushEvent:
+		return payloadData.HeadCommit.Committer.Username
+	}
+	return ""
 }
 
 // IsValidPayload checks if the github payload's hash fits with

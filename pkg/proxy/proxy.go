@@ -3,6 +3,7 @@ package proxy
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/stakater/GitWebhookProxy/pkg/parser"
 	"github.com/stakater/GitWebhookProxy/pkg/providers"
+	"github.com/stakater/GitWebhookProxy/pkg/utils"
 )
 
 var (
@@ -26,7 +28,7 @@ type Proxy struct {
 	upstreamURL  string
 	allowedPaths []string
 	secret       string
-	httpClient   *http.Client
+	ignoredUsers []string
 }
 
 func (p *Proxy) isPathAllowed(path string) bool {
@@ -39,6 +41,15 @@ func (p *Proxy) isPathAllowed(path string) bool {
 	for _, p := range p.allowedPaths {
 		if strings.TrimSuffix(strings.TrimSpace(p), "/") ==
 			strings.TrimSuffix(strings.TrimSpace(path), "/") {
+			return true
+		}
+	}
+	return false
+}
+
+func (p *Proxy) isIgnoredUser(committer string) bool {
+	if len(p.ignoredUsers) > 0 {
+		if exists, _ := utils.InArray(p.ignoredUsers, committer); exists {
 			return true
 		}
 	}
@@ -100,6 +111,14 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
+	committer := provider.GetCommitter(*hook)
+	if p.isIgnoredUser(committer) {
+		log.Printf("Ignoring request for user: %s", committer)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(fmt.Sprintf("Ignoring request for user: %s", committer)))
+		return
+	}
+
 	if !provider.Validate(*hook) {
 		log.Printf("Eror Validating Hook: %v", err)
 		http.Error(w, "Error validating Hook", http.StatusBadRequest)
@@ -154,7 +173,7 @@ func (p *Proxy) Run(listenAddress string) error {
 }
 
 func NewProxy(upstreamURL string, allowedPaths []string,
-	provider string, secret string) (*Proxy, error) {
+	provider string, secret string, ignoredUsers []string) (*Proxy, error) {
 	// Validate Params
 	if len(strings.TrimSpace(secret)) == 0 {
 		return nil, errors.New("Cannot create Proxy with empty secret")
@@ -174,5 +193,6 @@ func NewProxy(upstreamURL string, allowedPaths []string,
 		upstreamURL:  upstreamURL,
 		allowedPaths: allowedPaths,
 		secret:       secret,
+		ignoredUsers: ignoredUsers,
 	}, nil
 }

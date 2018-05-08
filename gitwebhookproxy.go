@@ -17,6 +17,7 @@ var (
 	secret        = flagSet.String("secret", "", "Secret of the Webhook API (required)")
 	provider      = flagSet.String("provider", "github", "Git Provider which generates the Webhook")
 	allowedPaths  = flagSet.String("allowedPaths", "", "Comma-Separated String List of allowed paths")
+	ignoredUsers  = flagSet.String("ignoredUsers", "", "Comma-Separated String List of users to ignore while proxying Webhook request")
 )
 
 func validateRequiredFlags() {
@@ -51,8 +52,14 @@ func main() {
 		allowedPathsArray = strings.Split(*allowedPaths, ",")
 	}
 
+	// Split Comma-Separated list into an array
+	ignoredUsersArray := []string{}
+	if len(*ignoredUsers) > 0 {
+		ignoredUsersArray = strings.Split(*ignoredUsers, ",")
+	}
+
 	log.Printf("Stakater Git WebHook Proxy started with provider '%s'\n", lowerProvider)
-	p, err := proxy.NewProxy(*upstreamURL, allowedPathsArray, lowerProvider, *secret)
+	p, err := proxy.NewProxy(*upstreamURL, allowedPathsArray, lowerProvider, *secret, ignoredUsersArray)
 	if err != nil {
 		log.Fatal(err)
 	}
