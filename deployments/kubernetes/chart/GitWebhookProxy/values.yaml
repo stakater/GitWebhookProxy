@@ -8,16 +8,17 @@ gitWebhookProxy:
   labels:
     provider: stakater
     group: com.stakater.platform
-    version: 0.2.25
+    version: 0.2.26
   image:
     name: stakater/gitwebhookproxy
-    tag: "0.2.25"
+    tag: "0.2.26"
     pullPolicy: IfNotPresent
   config:
     provider: github
     upstreamURL: "https://jenkins.tools.stackator.com"
     allowedPaths: "/github-webhook,/project"
     secret: "dummysecret"
+    ignoredUsers: "stakater-user"
   service: 
     forceSslRedirect: true
     ingressClass: external-ingress

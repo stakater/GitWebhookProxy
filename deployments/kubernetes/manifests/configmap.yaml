@@ -9,8 +9,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.25
-    chart: "GitWebhookProxy-0.2.25"
+    version: 0.2.26
+    chart: "GitWebhookProxy-0.2.26"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -18,3 +18,4 @@ data:
     provider: github
     upstreamURL: https://jenkins.tools.stackator.com
     allowedPaths: /github-webhook,/project
+    ignoredUsers: stakater-user

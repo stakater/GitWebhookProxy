@@ -7,8 +7,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.25
-    chart: "GitWebhookProxy-0.2.25"
+    version: 0.2.26
+    chart: "GitWebhookProxy-0.2.26"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -50,11 +50,16 @@ spec:
             configMapKeyRef:
               key: allowedPaths
               name: gitwebhookproxy
+        - name: GWP_IGNOREDUSERS
+          valueFrom:
+            configMapKeyRef:
+              key: ignoredUsers
+              name: gitwebhookproxy
         - name: GWP_SECRET
           valueFrom:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:0.2.25"
+        image: "stakater/gitwebhookproxy:0.2.26"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
