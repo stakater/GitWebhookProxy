@@ -18,6 +18,7 @@ gitWebhookProxy:
     upstreamURL: "https://jenkins.tools.stackator.com"
     allowedPaths: "/github-webhook,/project"
     secret: "dummysecret"
+    ignoredUsers: "stakater-user"
   service: 
     forceSslRedirect: true
     ingressClass: external-ingress
