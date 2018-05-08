@@ -15,6 +15,12 @@ const (
 type Provider interface {
 	GetHeaderKeys() []string
 	Validate(hook Hook) bool
+	GetCommitter(hook Hook) string
+}
+
+func assertProviderImplementations() {
+	var _ Provider = (*GithubProvider)(nil)
+	var _ Provider = (*GitlabProvider)(nil)
 }
 
 func NewProvider(provider string, secret string) (Provider, error) {

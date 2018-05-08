@@ -43,3 +43,7 @@ func (p *GitlabProvider) Validate(hook Hook) bool {
 
 	return strings.TrimSpace(token) == strings.TrimSpace(p.secret)
 }
+
+func (p *GitlabProvider) GetCommitter(hook Hook) string {
+	return ""
+}

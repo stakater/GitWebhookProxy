@@ -39,6 +39,11 @@ spec:
             configMapKeyRef:
               key: allowedPaths
               name: {{ template "name" . }}
+        - name: GWP_IGNOREDUSERS
+          valueFrom:
+            configMapKeyRef:
+              key: ignoredUsers
+              name: {{ template "name" . }}
         - name: GWP_SECRET
           valueFrom:
             secretKeyRef:
