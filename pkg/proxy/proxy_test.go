@@ -785,6 +785,7 @@ func TestNewProxy(t *testing.T) {
 		allowedPaths []string
 		provider     string
 		secret       string
+		ignoredUsers []string
 	}
 	tests := []struct {
 		name    string
@@ -865,7 +866,7 @@ func TestNewProxy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewProxy(tt.args.upstreamURL, tt.args.allowedPaths, tt.args.provider, tt.args.secret)
+			got, err := NewProxy(tt.args.upstreamURL, tt.args.allowedPaths, tt.args.provider, tt.args.secret, tt.args.ignoredUsers)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewProxy() error = %v, wantErr %v", err, tt.wantErr)
 				return
