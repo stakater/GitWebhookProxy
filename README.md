@@ -12,4 +12,4 @@ This little proxy makes webhooks start working again!
 
 ## STATUS
 
-WORK IN PROGRESS!
+WORK IN PROGRESS
