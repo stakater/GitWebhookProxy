@@ -1,8 +1,6 @@
-hash: ca9fd9d1cb424bd52e86d825dce2ebc8902256bc7c10eafad87c23aef1b489cc
-updated: 2018-05-29T16:20:19.032452326+05:00
+hash: 93609c878999b5dd8322e57c55368fa4b69b4a1083ebbecfbb9fc7a9130be99b
+updated: 2018-05-29T11:59:37.497971913Z
 imports:
-- name: github.com/h2non/gock
-  version: 550b7ca3aa563b9974e2391274ea55a940d05ca9
 - name: github.com/julienschmidt/httprouter
   version: adbc77eec0d91467376ca515bc3a14b8434d0f18
 - name: github.com/namsral/flag
