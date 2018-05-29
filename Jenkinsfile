@@ -108,6 +108,9 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                         String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                         chartManager.uploadToChartMuseum(chartDir, repoName, chartPackageName, cmUsername, cmPassword)
+                        
+                        def packagedChartLocation = chartDir + "/" + repoName + "/" + chartPackageName;
+                        chartManager.uploadToStakaterCharts(packagedChartLocation)
                     }
 
                     stage('Notify') {
