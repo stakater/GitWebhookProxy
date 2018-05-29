@@ -1,8 +1,12 @@
-hash: b749727086741a8adf09627805463a686ae9b26bf9eaacc07595d1eb6f025c55
-updated: 2018-05-03T16:01:37.69017901+05:00
+hash: ca9fd9d1cb424bd52e86d825dce2ebc8902256bc7c10eafad87c23aef1b489cc
+updated: 2018-05-29T16:20:19.032452326+05:00
 imports:
+- name: github.com/h2non/gock
+  version: 550b7ca3aa563b9974e2391274ea55a940d05ca9
 - name: github.com/julienschmidt/httprouter
   version: adbc77eec0d91467376ca515bc3a14b8434d0f18
 - name: github.com/namsral/flag
   version: 67f268f20922975c067ed799e4be6bacf152208c
+- name: gopkg.in/jarcoal/httpmock.v1
+  version: eb84b840d3d6889d2458ceed28e3c6f0d109f6c8
 testImports: []
