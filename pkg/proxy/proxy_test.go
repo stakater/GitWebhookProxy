@@ -244,9 +244,6 @@ func TestProxy_redirect(t *testing.T) {
 	httpmock.RegisterResponder("POST", httpBinURLSecure+"/get",
 		httpmock.NewStringResponder(405, ``))
 
-	httpmock.RegisterResponder("GET", httpBinURLSecure+"/get",
-		httpmock.NewStringResponder(405, ``))
-
 	httpmock.RegisterResponder("POST", httpBinURLSecure+"/post",
 		httpmock.NewStringResponder(200, ``))
 
