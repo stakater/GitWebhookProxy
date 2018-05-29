@@ -9,13 +9,16 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/stakater/GitWebhookProxy/pkg/providers"
+	httpmock "gopkg.in/jarcoal/httpmock.v1"
 )
 
 const (
 	proxyGitlabTestSecret = "testSecret"
 	proxyGitlabTestEvent  = "testEvent"
 	proxyGitlabTestBody   = "testBody"
-	httpBinURL            = "https://httpbin.org"
+	httpBinURL            = "httpbin.org"
+	httpBinURLInsecure    = "http://" + httpBinURL
+	httpBinURLSecure      = "https://" + httpBinURL
 )
 
 func TestProxy_isPathAllowed(t *testing.T) {
@@ -231,6 +234,22 @@ func createGitlabHook(tokenHeader string, tokenEvent string, body string, method
 }
 
 func TestProxy_redirect(t *testing.T) {
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("GET", httpBinURLSecure,
+		httpmock.NewStringResponder(200, ``))
+
+	httpmock.RegisterResponder("POST", httpBinURLSecure+"/get",
+		httpmock.NewStringResponder(405, ``))
+
+	httpmock.RegisterResponder("POST", httpBinURLSecure+"/post",
+		httpmock.NewStringResponder(200, ``))
+
+	httpmock.RegisterResponder("POST", httpBinURLInsecure+"/post",
+		httpmock.NewStringResponder(200, ``))
+
 	type fields struct {
 		provider     string
 		upstreamURL  string
@@ -253,7 +272,7 @@ func TestProxy_redirect(t *testing.T) {
 			name: "TestRedirectWithValidValues",
 			fields: fields{
 				provider:     "gitlab",
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -262,13 +281,13 @@ func TestProxy_redirect(t *testing.T) {
 				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
-			wantRedirectedHost: "httpbin.org",
+			wantRedirectedHost: httpBinURL,
 		},
 		{
 			name: "TestRedirectWithGetUpstream",
 			fields: fields{
 				provider:     "gitlab",
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -277,13 +296,13 @@ func TestProxy_redirect(t *testing.T) {
 				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusMethodNotAllowed,
-			wantRedirectedHost: "httpbin.org",
+			wantRedirectedHost: httpBinURL,
 		},
 		{
 			name: "TestRedirectWithEmptyPath",
 			fields: fields{
 				provider:     "github",
-				upstreamURL:  httpBinURL + "/post",
+				upstreamURL:  httpBinURLSecure + "/post",
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -292,13 +311,13 @@ func TestProxy_redirect(t *testing.T) {
 				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
-			wantRedirectedHost: "httpbin.org",
+			wantRedirectedHost: httpBinURL,
 		},
 		{
 			name: "TestRedirectWithEmptyPath",
 			fields: fields{
 				provider:     "github",
-				upstreamURL:  httpBinURL + "/post",
+				upstreamURL:  httpBinURLSecure + "/post",
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -307,13 +326,13 @@ func TestProxy_redirect(t *testing.T) {
 				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
-			wantRedirectedHost: "httpbin.org",
+			wantRedirectedHost: httpBinURL,
 		},
 		{
 			name: "TestRedirectWithNilHook",
 			fields: fields{
 				provider:     "github",
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -341,7 +360,7 @@ func TestProxy_redirect(t *testing.T) {
 			name: "TestRedirectWithInvalidUrlScheme",
 			fields: fields{
 				provider:     "gitlab",
-				upstreamURL:  "htttpsss://httpbin.org",
+				upstreamURL:  "htttpsss://" + httpBinURL,
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -355,7 +374,7 @@ func TestProxy_redirect(t *testing.T) {
 			name: "TestRedirectWithUrlWithoutScheme",
 			fields: fields{
 				provider:     "gitlab",
-				upstreamURL:  "httpbin.org",
+				upstreamURL:  httpBinURL,
 				allowedPaths: []string{},
 				secret:       "dummy",
 			},
@@ -364,7 +383,7 @@ func TestProxy_redirect(t *testing.T) {
 				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
-			wantRedirectedHost: "httpbin.org",
+			wantRedirectedHost: httpBinURL,
 		},
 	}
 	for _, tt := range tests {
@@ -444,7 +463,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithValidValues",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -458,7 +477,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithInvalidSecretInHeader",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -472,7 +491,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithEmptySecretInHeader",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -486,7 +505,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithEmptyEventInHeader",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -500,7 +519,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithWrongHeaderKeys",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -514,7 +533,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithoutHeaderKeys",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -527,7 +546,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithUnsupportedUrlPath",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -541,7 +560,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithInvalidHttpMethod",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -555,7 +574,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithEmptyBody",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -569,7 +588,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithNotAllowedPath",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{"/path1"},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -583,7 +602,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithAllowedPath",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{"/post"},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -611,7 +630,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithInvalidProvider",
 			fields: fields{
 				provider:     "invalid",
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -625,7 +644,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithWrongProviderKind",
 			fields: fields{
 				provider:     providers.GithubProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       proxyGitlabTestSecret,
 			},
@@ -639,7 +658,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithInvalidSecretInProvider",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       "wrong",
 			},
@@ -653,7 +672,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 			name: "TestProxyRequestWithEmptySecretInProvider",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				secret:       "",
 			},
@@ -796,13 +815,13 @@ func TestNewProxy(t *testing.T) {
 		{
 			name: "TestNewProxyWithValidArgs",
 			args: args{
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				provider:     providers.GitlabProviderKind,
 				secret:       proxyGitlabTestSecret,
 			},
 			want: &Proxy{
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				provider:     providers.GitlabProviderKind,
 				secret:       proxyGitlabTestSecret,
@@ -821,7 +840,7 @@ func TestNewProxy(t *testing.T) {
 		{
 			name: "TestNewProxyWithNilAllowedPaths",
 			args: args{
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: nil,
 				provider:     providers.GitlabProviderKind,
 				secret:       proxyGitlabTestSecret,
@@ -829,9 +848,9 @@ func TestNewProxy(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "TestNewProxyWithEmtpyProvider",
+			name: "TestNewProxyWithEmptyProvider",
 			args: args{
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{},
 				provider:     "",
 				secret:       proxyGitlabTestSecret,
@@ -839,9 +858,9 @@ func TestNewProxy(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "TestNewProxyWithEmtpySecret",
+			name: "TestNewProxyWithEmptySecret",
 			args: args{
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: nil,
 				provider:     providers.GitlabProviderKind,
 				secret:       "",
@@ -851,16 +870,18 @@ func TestNewProxy(t *testing.T) {
 		{
 			name: "TestNewProxyWithValidArgsAndAllowedPaths",
 			args: args{
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{"/path1", "/path2"},
 				provider:     providers.GitlabProviderKind,
 				secret:       proxyGitlabTestSecret,
+				ignoredUsers: []string{"user1"},
 			},
 			want: &Proxy{
-				upstreamURL:  httpBinURL,
+				upstreamURL:  httpBinURLSecure,
 				allowedPaths: []string{"/path1", "/path2"},
 				provider:     providers.GitlabProviderKind,
 				secret:       proxyGitlabTestSecret,
+				ignoredUsers: []string{"user1"},
 			},
 		},
 	}
@@ -873,6 +894,68 @@ func TestNewProxy(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewProxy() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestProxy_isIgnoredUser(t *testing.T) {
+	type fields struct {
+		provider     string
+		upstreamURL  string
+		allowedPaths []string
+		secret       string
+		ignoredUsers []string
+	}
+	type args struct {
+		committer string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			name: "TestIsIgnoredUserWithEmptyList",
+			fields: fields{
+				provider:     providers.GithubProviderKind,
+				upstreamURL:  "https://dummyurl.com",
+				allowedPaths: []string{"/path1", "/path2"},
+				secret:       "secret",
+				ignoredUsers: []string{},
+			},
+			args: args{
+				committer: "user",
+			},
+			want: false,
+		},
+		{
+			name: "TestIsIgnoredUserWithValidList",
+			fields: fields{
+				provider:     providers.GithubProviderKind,
+				upstreamURL:  "https://dummyurl.com",
+				allowedPaths: []string{"/path1", "/path2"},
+				secret:       "secret",
+				ignoredUsers: []string{"user1", "user2"},
+			},
+			args: args{
+				committer: "user2",
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &Proxy{
+				provider:     tt.fields.provider,
+				upstreamURL:  tt.fields.upstreamURL,
+				allowedPaths: tt.fields.allowedPaths,
+				secret:       tt.fields.secret,
+				ignoredUsers: tt.fields.ignoredUsers,
+			}
+			if got := p.isIgnoredUser(tt.args.committer); got != tt.want {
+				t.Errorf("Proxy.isIgnoredUser() = %v, want %v", got, tt.want)
 			}
 		})
 	}
