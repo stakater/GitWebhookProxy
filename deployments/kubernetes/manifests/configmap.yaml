@@ -1,5 +1,5 @@
 ---
-# Source: GitWebhookProxy/templates/configmap.yaml
+# Source: gitwebhookproxy/templates/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,8 +9,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.30
-    chart: "GitWebhookProxy-0.2.30"
+    version: 0.2.31
+    chart: "gitwebhookproxy-0.2.31"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
