@@ -2,9 +2,9 @@
 
 .PHONY: default build builder-image binary-image test stop clean-images clean push apply deploy
 
-BUILDER = GitWebhookProxy-builder
+BUILDER = gitWebhookProxy-builder
 BINARY = GitWebhookProxy
-DOCKER_IMAGE ?= stakater/GitWebhookProxy
+DOCKER_IMAGE ?= stakater/gitWebhookProxy
 # Default value "dev"
 DOCKER_TAG ?= dev
 REPOSITORY = ${DOCKER_IMAGE}:${DOCKER_TAG}
