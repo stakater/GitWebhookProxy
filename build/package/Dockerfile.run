@@ -6,4 +6,3 @@ RUN apk add --update ca-certificates
 COPY GitWebhookProxy /bin/GitWebhookProxy
 
 ENTRYPOINT ["/bin/GitWebhookProxy"]
-GitWebhookProxy
