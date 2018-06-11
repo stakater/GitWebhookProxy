@@ -2,9 +2,9 @@
 
 .PHONY: default build builder-image binary-image test stop clean-images clean push apply deploy
 
-BUILDER ?= gitWebhookProxy-builder
+BUILDER ?= gitwebhookproxy-builder
 BINARY ?= GitWebhookProxy
-DOCKER_IMAGE ?= stakater/gitWebhookProxy
+DOCKER_IMAGE ?= stakater/gitwebhookproxy
 # Default value "dev"
 DOCKER_TAG ?= dev
 REPOSITORY = ${DOCKER_IMAGE}:${DOCKER_TAG}
@@ -28,10 +28,10 @@ build:
 	"$(GOCMD)" build ${GOFLAGS} ${LDFLAGS} -o "${BINARY}"
 
 builder-image:
-	@docker build --network host -t "${BUILDER}" -f build/package/Dockerfile.build .
+	sudo docker build --network host -t "${BUILDER}" -f build/package/Dockerfile.build .
 
 binary-image: builder-image
-	@docker run --network host --rm "${BUILDER}" | docker build --network host -t "${REPOSITORY}" -f Dockerfile.run -
+	sudo docker run --network host --rm "${BUILDER}" | sudo docker build --network host -t "${REPOSITORY}" -f Dockerfile.run -
 
 test:
 	"$(GOCMD)" test -v ./...

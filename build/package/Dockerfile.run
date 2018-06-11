@@ -3,6 +3,7 @@ MAINTAINER "Stakater Team"
 
 RUN apk add --update ca-certificates
 
-COPY Gitwebhookproxy /bin/Gitwebhookproxy
+COPY GitWebhookProxy /bin/GitWebhookProxy
 
-ENTRYPOINT ["/bin/Gitwebhookproxy"]
+ENTRYPOINT ["/bin/GitWebhookProxy"]
+GitWebhookProxy
