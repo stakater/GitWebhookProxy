@@ -52,3 +52,23 @@ spec:
         image: "{{ .Values.gitWebhookProxy.image.name }}:{{ .Values.gitWebhookProxy.image.tag }}"
         imagePullPolicy: {{ .Values.gitWebhookProxy.image.pullPolicy }}
         name: {{ template "name" . }}
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: {{ (index .Values.gitWebhookProxy.service.ports 0).targetPort }}
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: {{ (index .Values.gitWebhookProxy.service.ports 0).targetPort }}
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
