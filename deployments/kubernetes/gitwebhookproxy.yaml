@@ -1,4 +1,36 @@
 ---
+# Source: gitwebhookproxy/templates/ingress.yaml
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/force-ssl-redirect: true
+    kubernetes.io/ingress.class: external-ingress
+    monitor.stakater.com/enabled: true
+  labels:
+    app: gitwebhookproxy
+    group: com.stakater.platform
+    provider: stakater
+    version: 0.2.37
+    chart: "gitwebhookproxy-0.2.37"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
+  name: gitwebhookproxy
+  namespace: default
+spec:
+  rules:
+  - host: gitwebhookproxy.tools.stackator.com
+    http:
+      paths:
+      - backend:
+          serviceName: gitwebhookproxy
+          servicePort: 80
+  tls:
+  - hosts:
+    - gitwebhookproxy.tools.stackator.com
+
+---
 # Source: gitwebhookproxy/templates/deployment.yaml
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -7,8 +39,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.36
-    chart: "gitwebhookproxy-0.2.36"
+    version: 0.2.37
+    chart: "gitwebhookproxy-0.2.37"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -60,7 +92,7 @@ spec:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:0.2.36"
+        image: "stakater/gitwebhookproxy:0.2.37"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
         livenessProbe:
@@ -93,8 +125,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.36
-    chart: "gitwebhookproxy-0.2.36"
+    version: 0.2.37
+    chart: "gitwebhookproxy-0.2.37"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -116,8 +148,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.36
-    chart: "gitwebhookproxy-0.2.36"
+    version: 0.2.37
+    chart: "gitwebhookproxy-0.2.37"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -142,8 +174,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.36
-    chart: "gitwebhookproxy-0.2.36"
+    version: 0.2.37
+    chart: "gitwebhookproxy-0.2.37"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy

@@ -8,10 +8,10 @@ gitWebhookProxy:
   labels:
     provider: stakater
     group: com.stakater.platform
-    version: 0.2.36
+    version: 0.2.37
   image:
     name: stakater/gitwebhookproxy
-    tag: "0.2.36"
+    tag: "0.2.37"
     pullPolicy: IfNotPresent
   config:
     provider: github
