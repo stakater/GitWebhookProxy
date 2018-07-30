@@ -39,7 +39,7 @@ gitWebhookProxy:
         value: external-ingress
       - key: monitor.stakater.com/enabled
         value: "true"
-    serviceName: gitwebhookproxy
     host: gitwebhookproxy.tools.stackator.com
+    serviceName: gitwebhookproxy
     servicePort: 80
 

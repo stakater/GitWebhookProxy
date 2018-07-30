@@ -19,7 +19,7 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: {{ template "name" . }}
+          serviceName: {{ .Values.gitWebhookProxy.ingress.serviceName }}
           servicePort: {{ .Values.gitWebhookProxy.ingress.servicePort }}
   tls:
   - hosts:
