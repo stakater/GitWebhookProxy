@@ -31,4 +31,12 @@ gitWebhookProxy:
         port: 80
         protocol: TCP
         targetPort: 8080
+  ingress:
+    annotations:
+      generatedBy: exposecontroller
+      forceSslRedirect: "true"
+      ingressClass: external-ingress
+      enabled: "true"
+    host: gitwebhookproxy.tools.stackator.com
+    servicePort: 80
 
