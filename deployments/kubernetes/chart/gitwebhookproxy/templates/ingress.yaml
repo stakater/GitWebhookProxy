@@ -1,11 +1,13 @@
+{{- if .Values.gitWebhookProxy.ingress }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   annotations:
-    fabric8.io/generated-by: {{ .Values.gitWebhookProxy.ingress.annotations.generatedBy }}
-    ingress.kubernetes.io/force-ssl-redirect: "{{ .Values.gitWebhookProxy.ingress.annotations.forceSslRedirect }}"
-    kubernetes.io/ingress.class: {{ .Values.gitWebhookProxy.ingress.annotations.ingressClass }}
-    monitor.stakater.com/enabled: "{{ .Values.gitWebhookProxy.ingress.annotations.enabled }}"
+    {{- with .Values.gitWebhookProxy.ingress.annotations }}
+    {{- range . }}
+    {{ .key }}: {{ .value }}
+    {{- end }}
+    {{- end }}
   labels:
 {{ include "labels.stakater" . | indent 4 }}
 {{ include "labels.chart" . | indent 4 }}
@@ -22,3 +24,4 @@ spec:
   tls:
   - hosts:
     - {{ .Values.gitWebhookProxy.ingress.host }}
+{{- end }}
