@@ -31,4 +31,15 @@ gitWebhookProxy:
         port: 80
         protocol: TCP
         targetPort: 8080
+  ingress:
+    annotations:
+      - key: ingress.kubernetes.io/force-ssl-redirect
+        value: "true"
+      - key: kubernetes.io/ingress.class
+        value: external-ingress
+      - key: monitor.stakater.com/enabled
+        value: "true"
+    host: gitwebhookproxy.tools.stackator.com
+    serviceName: gitwebhookproxy
+    servicePort: 80
 

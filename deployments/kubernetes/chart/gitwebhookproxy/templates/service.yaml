@@ -12,7 +12,9 @@ metadata:
       {{- end }}
       {{- end }}
   labels:
+{{- if .expose }}
     expose: {{ .expose | quote }}
+{{- end }}
 {{ include "labels.stakater" $ | indent 4 }}
 {{ include "labels.chart" $ | indent 4 }}
   name: {{ template "name" $ }}
