@@ -39,15 +39,18 @@ GitWebhookProxy can be configured by providing the following arguments either vi
 | provider      | Git Provider which generates the Webhook                                      | `github` | `github` or `gitlab`                       |
 | allowedPaths  | Comma-Separated String List of allowed paths on the proxy                     |          | `/project` or `github-webhook/,project/`   |
 | ignoredUsers  | Comma-Separated String List of users to ignore while proxying Webhook request |          | `someuser`                                 |
-| host          | Url where gitwebhookproxy is exposed                                          |          | `gitwebhookproxy.tools.stackator.com`                                 |
 
 ## DEPLOYING TO KUBERNETES
 
+The GitWebhookProxy can be deployed with vanilla manifests or Helm Charts.
+
 ### Vanilla Manifests
 
-You have to first clone or download the repository contents. The vanilla manifest file is provided inside `deployments/kubernetes` folder.
+For Vanilla manifests, you can either first clone the respository or download the `deployments/kubernetes/gitwebhookproxy.yaml` file only.
 
-Once you have the repo cloned, update the above mentioned parameters according to your configuration and update `host` as well
+#### Configuring
+
+Update the above mentioned parameters according to your configuration and update `host` and `upstreamURL` with your config values as well
 
 ```yaml
  rules:
@@ -59,6 +62,12 @@ Once you have the repo cloned, update the above mentioned parameters according t
   - hosts:
     - gitwebhookproxy.tools.stackator.com
 ```
+
+```yaml
+upstreamURL: https://jenkins.tools.stackator.com
+```
+
+#### Deploying
 
 Then you can deploy GitwebhookProxy by running the following kubectl commands:
 
