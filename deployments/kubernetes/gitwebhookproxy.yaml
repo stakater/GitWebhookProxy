@@ -12,8 +12,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.38
-    chart: "gitwebhookproxy-0.2.38"
+    version: 0.2.39
+    chart: "gitwebhookproxy-0.2.39"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -39,8 +39,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.38
-    chart: "gitwebhookproxy-0.2.38"
+    version: 0.2.39
+    chart: "gitwebhookproxy-0.2.39"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -92,7 +92,7 @@ spec:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:0.2.38"
+        image: "stakater/gitwebhookproxy:0.2.39"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
         livenessProbe:
@@ -125,8 +125,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.38
-    chart: "gitwebhookproxy-0.2.38"
+    version: 0.2.39
+    chart: "gitwebhookproxy-0.2.39"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -148,8 +148,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.38
-    chart: "gitwebhookproxy-0.2.38"
+    version: 0.2.39
+    chart: "gitwebhookproxy-0.2.39"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -174,8 +174,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.38
-    chart: "gitwebhookproxy-0.2.38"
+    version: 0.2.39
+    chart: "gitwebhookproxy-0.2.39"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
