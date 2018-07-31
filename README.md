@@ -42,17 +42,37 @@ GitWebhookProxy can be configured by providing the following arguments either vi
 
 ## DEPLOYING TO KUBERNETES
 
+The GitWebhookProxy can be deployed with vanilla manifests or Helm Charts.
+
 ### Vanilla Manifests
 
-You have to first clone or download the repository contents. The kubernetes deployment files are provided inside `deployments/kubernetes/manifests` folder.
+For Vanilla manifests, you can either first clone the respository or download the `deployments/kubernetes/gitwebhookproxy.yaml` file only.
 
-Once you have the repo cloned, you can deploy GitwebhookProxy by running the following kubectl commands:
+#### Configuring
+
+Update the above mentioned parameters according to your configuration and update `host` and `upstreamURL` with your config values as well
+
+```yaml
+ rules:
+  - host: gitwebhookproxy.tools.stackator.com
+```
+
+```yaml
+  tls:
+  - hosts:
+    - gitwebhookproxy.tools.stackator.com
+```
+
+```yaml
+upstreamURL: https://jenkins.tools.stackator.com
+```
+
+#### Deploying
+
+Then you can deploy GitwebhookProxy by running the following kubectl commands:
 
 ```bash
-kubectl apply -f configmap.yaml -n <namespace>
-kubectl apply -f secret.yaml -n <namespace>
-kubectl apply -f deployment.yaml -n <namespace>
-kubectl apply -f service.yaml -n <namespace>
+kubecl apply -f gitwebhookproxy.yaml -n <namespace>
 ```
 
 *Note:* Make sure to update the `port` in deployment.yaml as well as service.yaml if you change the default `listenAddress` port.
