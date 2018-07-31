@@ -1,6 +1,8 @@
 # HOW TO MAKE GWP WORK
 
-Below are the Steps to create a Git webhook, which can be used with GitwebhookProxy
+Below are the Steps to create a Github webhook, which can be used with GitwebhookProxy
+
+## Github webhoook
 
 1. Go to the `Settings` tab of your repository.
 2. Click on `Webhooks` in left sidebar:
