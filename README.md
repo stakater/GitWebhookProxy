@@ -50,7 +50,9 @@ For Vanilla manifests, you can either first clone the respository or download th
 
 #### Configuring
 
-Update the above mentioned parameters according to your configuration and update `host` and `upstreamURL` with your config values as well
+Below mentioned values in `gitwebhookproxy.yaml` have been hard coded to run in our cluster. Please make sure to update these according to your own configuration.
+
+1. Change below mentioned values in `Ingress` in `gitwebhookproxy.yaml`
 
 ```yaml
  rules:
@@ -63,8 +65,21 @@ Update the above mentioned parameters according to your configuration and update
     - gitwebhookproxy.tools.stackator.com
 ```
 
+2. Change below mentioned values in `Secret` in `gitwebhookproxy.yaml`
+
 ```yaml
-upstreamURL: https://jenkins.tools.stackator.com
+data:
+  secret: ZHVtbXlzZWNyZXQ=
+```
+
+3. Change below mentioned values in `ConfigMap` in `gitwebhookproxy.yaml`
+
+```yaml
+data:
+  provider: github
+  upstreamURL: https://jenkins.tools.stackator.com
+  allowedPaths: /github-webhook,/project
+  ignoredUsers: stakater-user
 ```
 
 #### Deploying
@@ -72,14 +87,22 @@ upstreamURL: https://jenkins.tools.stackator.com
 Then you can deploy GitwebhookProxy by running the following kubectl commands:
 
 ```bash
-kubecl apply -f gitwebhookproxy.yaml -n <namespace>
+kubectl apply -f gitwebhookproxy.yaml -n <namespace>
 ```
 
 *Note:* Make sure to update the `port` in deployment.yaml as well as service.yaml if you change the default `listenAddress` port.
 
 ### Helm Charts
 
-Alternatively if you have configured helm on your cluster, you can deploy the controller via helm chart located under `deployment/kubernetes/chart` folder.
+Alternatively if you have configured helm on your cluster, you can add gitwebhookproxy to helm from our public chart repository and deploy it via helm using below mentioned commands
+
+```bash
+helm repo add stakater https://stakater.github.io/stakater-charts
+
+helm repo update
+
+helm install stakater/gitwebhookproxy
+```
 
 ## Help
 
