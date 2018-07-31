@@ -39,20 +39,31 @@ GitWebhookProxy can be configured by providing the following arguments either vi
 | provider      | Git Provider which generates the Webhook                                      | `github` | `github` or `gitlab`                       |
 | allowedPaths  | Comma-Separated String List of allowed paths on the proxy                     |          | `/project` or `github-webhook/,project/`   |
 | ignoredUsers  | Comma-Separated String List of users to ignore while proxying Webhook request |          | `someuser`                                 |
+| host          | Url where gitwebhookproxy is exposed                                          |          | `gitwebhookproxy.tools.stackator.com`                                 |
 
 ## DEPLOYING TO KUBERNETES
 
 ### Vanilla Manifests
 
-You have to first clone or download the repository contents. The kubernetes deployment files are provided inside `deployments/kubernetes/manifests` folder.
+You have to first clone or download the repository contents. The vanilla manifest file is provided inside `deployments/kubernetes` folder.
 
-Once you have the repo cloned, you can deploy GitwebhookProxy by running the following kubectl commands:
+Once you have the repo cloned, update the above mentioned parameters according to your configuration and update `host` as well
+
+```yaml
+ rules:
+  - host: gitwebhookproxy.tools.stackator.com
+```
+
+```yaml
+  tls:
+  - hosts:
+    - gitwebhookproxy.tools.stackator.com
+```
+
+Then you can deploy GitwebhookProxy by running the following kubectl commands:
 
 ```bash
-kubectl apply -f configmap.yaml -n <namespace>
-kubectl apply -f secret.yaml -n <namespace>
-kubectl apply -f deployment.yaml -n <namespace>
-kubectl apply -f service.yaml -n <namespace>
+kubecl apply -f gitwebhookproxy.yaml -n <namespace>
 ```
 
 *Note:* Make sure to update the `port` in deployment.yaml as well as service.yaml if you change the default `listenAddress` port.
