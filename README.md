@@ -96,13 +96,19 @@ kubectl apply -f gitwebhookproxy.yaml -n <namespace>
 
 Alternatively if you have configured helm on your cluster, you can add gitwebhookproxy to helm from our public chart repository and deploy it via helm using below mentioned commands
 
-```bash
-helm repo add stakater https://stakater.github.io/stakater-charts
+1. Add the chart repo:
 
-helm repo update
+   i. `helm repo add stakater https://stakater.github.io/stakater-charts/`
 
-helm install stakater/gitwebhookproxy
-```
+   ii. `helm repo update`
+2. Set configuration as discussed in the `Configuring` section
+
+   i. `helm fetch --untar stakater/gitwebhookproxy`
+
+   ii. Open and edit `gitwebhookproxy/values.yaml` in a text editor and update the values mentioned in `Configuring` section.
+
+3. Install the chart
+   * `helm install stakater/gitwebhookproxy -f gitwebhookproxy/values.yaml -n gitwebhookproxy`
 
 ## Help
 
