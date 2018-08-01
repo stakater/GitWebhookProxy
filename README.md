@@ -50,34 +50,34 @@ For Vanilla manifests, you can either first clone the respository or download th
 
 #### Configuring
 
-Below mentioned values in `gitwebhookproxy.yaml` have been hard coded to run in our cluster. Please make sure to update these according to your own configuration.
+Below mentioned attributes in `gitwebhookproxy.yaml` have been hard coded to run in our cluster. Please make sure to update values of these according to your own configuration.
 
-1. Change below mentioned values in `Ingress` in `gitwebhookproxy.yaml`
+1. Change below mentioned attribute's values in `Ingress` in `gitwebhookproxy.yaml`
 
 ```yaml
  rules:
-  - host: gitwebhookproxy.tools.stackator.com
+  - host: gitwebhookproxy.example.com
 ```
 
 ```yaml
   tls:
   - hosts:
-    - gitwebhookproxy.tools.stackator.com
+    - gitwebhookproxy.example.com
 ```
 
-2. Change below mentioned values in `Secret` in `gitwebhookproxy.yaml`
+2. Change below mentioned attribute's values in `Secret` in `gitwebhookproxy.yaml`
 
 ```yaml
 data:
-  secret: ZHVtbXlzZWNyZXQ=
+  secret: example
 ```
 
-3. Change below mentioned values in `ConfigMap` in `gitwebhookproxy.yaml`
+3. Change below mentioned attribute's values in `ConfigMap` in `gitwebhookproxy.yaml`
 
 ```yaml
 data:
   provider: github
-  upstreamURL: https://jenkins.tools.stackator.com
+  upstreamURL: https://jenkins.example.com
   allowedPaths: /github-webhook,/project
   ignoredUsers: stakater-user
 ```
