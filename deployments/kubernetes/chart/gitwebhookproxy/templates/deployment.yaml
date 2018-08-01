@@ -14,7 +14,8 @@ spec:
   template:
     metadata:
       annotations:
-        configmap.fabric8.io/update-on-change: {{ template "name" . }}
+        configmap.reloader.stakater.com/reload: {{ template "name" . }}
+        secret.reloader.stakater.com/reload: {{ template "name" . }}
       labels:
 {{ include "labels.selector" . | indent 8 }}
     spec:
