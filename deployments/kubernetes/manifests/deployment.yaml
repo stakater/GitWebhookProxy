@@ -7,8 +7,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.39
-    chart: "gitwebhookproxy-0.2.39"
+    version: 0.2.40
+    chart: "gitwebhookproxy-0.2.40"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -23,7 +23,8 @@ spec:
   template:
     metadata:
       annotations:
-        configmap.fabric8.io/update-on-change: gitwebhookproxy
+        configmap.reloader.stakater.com/reload: gitwebhookproxy
+        secret.reloader.stakater.com/reload: gitwebhookproxy
       labels:
         app: gitwebhookproxy
         group: com.stakater.platform
@@ -60,7 +61,7 @@ spec:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:0.2.39"
+        image: "stakater/gitwebhookproxy:0.2.40"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
         livenessProbe:
