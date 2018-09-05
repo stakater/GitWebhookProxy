@@ -1,7 +1,6 @@
 package providers
 
 import (
-	"errors"
 	"strings"
 )
 
@@ -16,10 +15,6 @@ type GitlabProvider struct {
 }
 
 func NewGitlabProvider(secret string) (*GitlabProvider, error) {
-	if len(strings.TrimSpace(secret)) == 0 {
-		return nil, errors.New("Cannot create github provider with empty secret")
-	}
-
 	return &GitlabProvider{
 		secret: secret,
 	}, nil

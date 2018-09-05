@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -34,10 +33,6 @@ type GithubProvider struct {
 }
 
 func NewGithubProvider(secret string) (*GithubProvider, error) {
-	if len(strings.TrimSpace(secret)) == 0 {
-		return nil, errors.New("Cannot create github provider with empty secret")
-	}
-
 	return &GithubProvider{
 		secret: secret,
 	}, nil
@@ -47,7 +42,6 @@ func (p *GithubProvider) GetHeaderKeys() []string {
 	return []string{
 		XGitHubDelivery,
 		XGitHubEvent,
-		XHubSignature,
 		ContentTypeHeader,
 	}
 }
