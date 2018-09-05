@@ -35,15 +35,6 @@ func TestNewProvider(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "TestNewProviderWithGithubProviderAndEmptySecret",
-			args: args{
-				provider: GithubProviderKind,
-				secret:   "",
-			},
-			want:    (*GithubProvider)(nil),
-			wantErr: true,
-		},
-		{
 			name: "TestNewProviderWithEmptyGithubProviderAndEmptySecret",
 			args: args{
 				provider: "",
