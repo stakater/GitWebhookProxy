@@ -680,7 +680,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 				request: createGitlabRequest(http.MethodPost, "/post",
 					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestSecret),
 			},
-			wantStatusCode: http.StatusInternalServerError,
+			wantStatusCode: http.StatusOK,
 		},
 	}
 	for _, tt := range tests {
