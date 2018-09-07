@@ -119,7 +119,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
-	if !provider.Validate(*hook) {
+	if len(strings.TrimSpace(p.secret)) > 0 && !provider.Validate(*hook) {
 		log.Printf("Eror Validating Hook: %v", err)
 		http.Error(w, "Error validating Hook", http.StatusBadRequest)
 		return
@@ -175,9 +175,6 @@ func (p *Proxy) Run(listenAddress string) error {
 func NewProxy(upstreamURL string, allowedPaths []string,
 	provider string, secret string, ignoredUsers []string) (*Proxy, error) {
 	// Validate Params
-	if len(strings.TrimSpace(secret)) == 0 {
-		return nil, errors.New("Cannot create Proxy with empty secret")
-	}
 	if len(strings.TrimSpace(upstreamURL)) == 0 {
 		return nil, errors.New("Cannot create Proxy with empty upstreamURL")
 	}

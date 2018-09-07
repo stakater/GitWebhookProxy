@@ -31,14 +31,14 @@ Currently we support the following git providers out of the box:
 
 GitWebhookProxy can be configured by providing the following arguments either via command line or via environment variables:
 
-| Parameter     | Description                                                                   | Default  | Example                                    |
-|---------------|-------------------------------------------------------------------------------|----------|--------------------------------------------|
-| listenAddress | Address on which the proxy listens.                                           | `:8080`  | `127.0.0.1:80`                             |
-| upstreamURL   |          URL to which the proxy requests will be forwarded (required)         |          | `https://someci-instance-url.com/webhook/` |
-| secret        | Secret of the Webhook API (required)                                          |          | `iamasecret`                               |
-| provider      | Git Provider which generates the Webhook                                      | `github` | `github` or `gitlab`                       |
-| allowedPaths  | Comma-Separated String List of allowed paths on the proxy                     |          | `/project` or `github-webhook/,project/`   |
-| ignoredUsers  | Comma-Separated String List of users to ignore while proxying Webhook request |          | `someuser`                                 |
+| Parameter     | Description                                                                       | Default  | Example                                    |
+|---------------|-----------------------------------------------------------------------------------|----------|--------------------------------------------|
+| listenAddress | Address on which the proxy listens.                                               | `:8080`  | `127.0.0.1:80`                             |
+| upstreamURL   |          URL to which the proxy requests will be forwarded (required)             |          | `https://someci-instance-url.com/webhook/` |
+| secret        | Secret of the Webhook API. If not set validation is not made.                     |          | `iamasecret`                               |
+| provider      | Git Provider which generates the Webhook                                          | `github` | `github` or `gitlab`                       |
+| allowedPaths  | Comma-Separated String List of allowed paths on the proxy                         |          | `/project` or `github-webhook/,project/`   |
+| ignoredUsers  | Comma-Separated String List of users to ignore while proxying Webhook request     |          | `someuser`                                 |
 
 ## DEPLOYING TO KUBERNETES
 

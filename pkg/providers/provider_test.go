@@ -40,8 +40,9 @@ func TestNewProvider(t *testing.T) {
 				provider: GithubProviderKind,
 				secret:   "",
 			},
-			want:    (*GithubProvider)(nil),
-			wantErr: true,
+			want:  &GithubProvider{
+				secret: "",
+			},
 		},
 		{
 			name: "TestNewProviderWithEmptyGithubProviderAndEmptySecret",

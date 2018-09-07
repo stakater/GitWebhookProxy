@@ -34,12 +34,17 @@ func TestNewGithubProvider(t *testing.T) {
 			args: args{
 				secret: "",
 			},
-			wantErr: true,
+			want: &GithubProvider{
+				secret: "",
+			},
+			wantErr: false,
 		},
 		{
 			name:    "TestNewGithubProviderWithNoSecret",
 			args:    args{},
-			wantErr: true,
+			want: &GithubProvider{
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -67,7 +72,7 @@ func TestGithubProvider_GetHeaderKeys(t *testing.T) {
 	}{
 		{
 			name: "TestGetHeaderKeysWithCorrectValues",
-			want: []string{XGitHubDelivery, XGitHubEvent, XHubSignature, ContentTypeHeader},
+			want: []string{XGitHubDelivery, XGitHubEvent, ContentTypeHeader},
 		},
 	}
 	for _, tt := range tests {

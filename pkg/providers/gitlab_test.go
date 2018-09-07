@@ -34,12 +34,17 @@ func TestNewGitlabProvider(t *testing.T) {
 			args: args{
 				secret: "",
 			},
-			wantErr: true,
+			want: &GitlabProvider{
+				secret: "",
+			},
+			wantErr: false,
 		},
 		{
 			name:    "TestNewGitlabProviderWithNoSecret",
 			args:    args{},
-			wantErr: true,
+			want: &GitlabProvider{
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
