@@ -1,32 +1,4 @@
 ---
 # Source: gitwebhookproxy/templates/ingress.yaml
 
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  annotations:
-    ingress.kubernetes.io/force-ssl-redirect: true
-    kubernetes.io/ingress.class: external-ingress
-    monitor.stakater.com/enabled: true
-  labels:
-    app: gitwebhookproxy
-    group: com.stakater.platform
-    provider: stakater
-    version: 0.2.42
-    chart: "gitwebhookproxy-0.2.42"
-    release: "RELEASE-NAME"
-    heritage: "Tiller"
-  name: gitwebhookproxy
-  namespace: default
-spec:
-  rules:
-  - host: gitwebhookproxy.tools.stackator.com
-    http:
-      paths:
-      - backend:
-          serviceName: gitwebhookproxy
-          servicePort: 80
-  tls:
-  - hosts:
-    - gitwebhookproxy.tools.stackator.com
 

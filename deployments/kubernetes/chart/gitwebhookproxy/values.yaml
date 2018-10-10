@@ -8,10 +8,10 @@ gitWebhookProxy:
   labels:
     provider: stakater
     group: com.stakater.platform
-    version: 0.2.42
+    version: 0.2.43
   image:
     name: stakater/gitwebhookproxy
-    tag: "0.2.42"
+    tag: "0.2.43"
     pullPolicy: IfNotPresent
   config:
     provider: github
@@ -19,15 +19,27 @@ gitWebhookProxy:
     allowedPaths: "/github-webhook,/project"
     secret: "dummysecret"
     ignoredUsers: "stakater-user"
-  service:
-    labels:
-      expose: "true"
-    annotations: {}
+  service: 
+    forceSslRedirect: true
+    ingressClass: external-ingress
+    expose: true
+    additionalIngressAnnotations: 
+      - key: monitor.stakater.com/enabled
+        value: true
+    ports:
+      - name: http
+        port: 80
+        protocol: TCP
+        targetPort: 8080
   ingress:
-    enabled: true
     annotations:
-      ingress.kubernetes.io/force-ssl-redirect: true
-      kubernetes.io/ingress.class: external-ingress
-      monitor.stakater.com/enabled: true
+      - key: ingress.kubernetes.io/force-ssl-redirect
+        value: "true"
+      - key: kubernetes.io/ingress.class
+        value: external-ingress
+      - key: monitor.stakater.com/enabled
+        value: "true"
     host: gitwebhookproxy.tools.stackator.com
+    serviceName: gitwebhookproxy
+    servicePort: 80
 

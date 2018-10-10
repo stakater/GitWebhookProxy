@@ -1,21 +1,23 @@
 ---
 # Source: gitwebhookproxy/templates/service.yaml
-
 apiVersion: v1
 kind: Service
 metadata:
   annotations:
     fabric8.io/ingress.annotations: |-
-      ingress.kubernetes.io/force-ssl-redirect: true
-      kubernetes.io/ingress.class: external-ingress
-      monitor.stakater.com/enabled: true
+      - key: ingress.kubernetes.io/force-ssl-redirect
+        value: "true"
+      - key: kubernetes.io/ingress.class
+        value: external-ingress
+      - key: monitor.stakater.com/enabled
+        value: "true"
+      
   labels:
-    expose: "true"
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.42
-    chart: "gitwebhookproxy-0.2.42"
+    version: 0.2.43
+    chart: "gitwebhookproxy-0.2.43"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
