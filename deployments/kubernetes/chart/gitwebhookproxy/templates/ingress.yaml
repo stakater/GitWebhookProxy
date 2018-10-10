@@ -1,13 +1,13 @@
-{{- if .Values.gitWebhookProxy.ingress }}
+{{- if .Values.gitWebhookProxy.ingress.enabled }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
+{{- if .Values.gitWebhookProxy.ingress.annotations }}
   annotations:
-    {{- with .Values.gitWebhookProxy.ingress.annotations }}
-    {{- range . }}
-    {{ .key }}: {{ .value }}
-    {{- end }}
-    {{- end }}
+{{- range $key, $value := .Values.gitWebhookProxy.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- end }}
   labels:
 {{ include "labels.stakater" . | indent 4 }}
 {{ include "labels.chart" . | indent 4 }}
@@ -19,8 +19,8 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: {{ .Values.gitWebhookProxy.ingress.serviceName }}
-          servicePort: {{ .Values.gitWebhookProxy.ingress.servicePort }}
+          serviceName: {{ template "name" . }}
+          servicePort: 80
   tls:
   - hosts:
     - {{ .Values.gitWebhookProxy.ingress.host }}

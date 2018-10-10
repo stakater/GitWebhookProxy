@@ -57,7 +57,7 @@ spec:
           failureThreshold: 5
           httpGet:
             path: /health
-            port: {{ (index .Values.gitWebhookProxy.service.ports 0).targetPort }}
+            port: 8080
             scheme: HTTP
           initialDelaySeconds: 15
           periodSeconds: 10
@@ -67,7 +67,7 @@ spec:
           failureThreshold: 3
           httpGet:
             path: /health
-            port: {{ (index .Values.gitWebhookProxy.service.ports 0).targetPort }}
+            port: 8080
             scheme: HTTP
           initialDelaySeconds: 10
           periodSeconds: 10

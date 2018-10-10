@@ -1,31 +1,28 @@
-{{- with .Values.gitWebhookProxy.service }}
 apiVersion: v1
 kind: Service
 metadata:
+{{- if or .Values.gitWebhookProxy.service.annotations .Values.gitWebhookProxy.ingress.annotations }}
   annotations:
-    fabric8.io/ingress.annotations: |-
-      ingress.kubernetes.io/force-ssl-redirect: {{ .forceSslRedirect }}
-      kubernetes.io/ingress.class: {{ .ingressClass }}
-      {{- with .additionalIngressAnnotations }}
-      {{- range . }}
-      {{ .key }}: {{ .value }}
-      {{- end }}
-      {{- end }}
-  labels:
-{{- if .expose }}
-    expose: {{ .expose | quote }}
 {{- end }}
-{{ include "labels.stakater" $ | indent 4 }}
-{{ include "labels.chart" $ | indent 4 }}
-  name: {{ template "name" $ }}
+{{- if .Values.gitWebhookProxy.ingress.annotations }}
+    fabric8.io/ingress.annotations: |-
+{{ toYaml .Values.gitWebhookProxy.ingress.annotations | indent 6 }}
+{{- end }}
+{{- if .Values.gitWebhookProxy.service.annotations }}
+{{ toYaml .Values.gitWebhookProxy.service.annotations | indent 4 }}
+{{- end }}
+  labels:
+{{- if .Values.gitWebhookProxy.service.labels }}
+{{ toYaml .Values.gitWebhookProxy.service.labels | indent 4 }}
+{{- end }}
+{{ include "labels.stakater" . | indent 4 }}
+{{ include "labels.chart" . | indent 4 }}
+  name: {{ template "name" . }}
 spec:
   ports:
-  {{- range .ports }}
-  - name: {{ .name }}
-    port: {{ .port }}
-    protocol: {{ .protocol }}
-    targetPort: {{ .targetPort }}
-  {{- end }}
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
   selector:
-{{ include "labels.selector" $ | indent 4 }}
-{{- end }}
+{{ include "labels.selector" . | indent 4 }}
