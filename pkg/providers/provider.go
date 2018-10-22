@@ -12,6 +12,9 @@ const (
 	DefaultContentTypeHeaderValue = "application/json"
 )
 
+// Event defines a provider hook event type
+type Event string
+
 type Provider interface {
 	GetHeaderKeys() []string
 	Validate(hook Hook) bool

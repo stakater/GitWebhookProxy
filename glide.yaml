@@ -6,3 +6,5 @@ import:
   version: 67f268f20922975c067ed799e4be6bacf152208c
 - package: gopkg.in/jarcoal/httpmock.v1
   version: eb84b840d3d6889d2458ceed28e3c6f0d109f6c8
+- package: github.com/sirupsen/logrus
+  version: 1.1.1

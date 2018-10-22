@@ -1,13 +1,20 @@
 package providers
 
 import (
+	"encoding/json"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Header constants
 const (
 	XGitlabToken = "X-Gitlab-Token"
 	XGitlabEvent = "X-Gitlab-Event"
+)
+
+const (
+	GitlabPushEvent Event = "push"
 )
 
 type GitlabProvider struct {
@@ -40,5 +47,16 @@ func (p *GitlabProvider) Validate(hook Hook) bool {
 }
 
 func (p *GitlabProvider) GetCommitter(hook Hook) string {
+	var payloadData GitlabPushPayload
+	if err := json.Unmarshal(hook.Payload, &payloadData); err != nil {
+		logrus.Errorf("Gitlab hook payload unmarshling failed")
+		return ""
+	}
+
+	eventType := Event(hook.Headers[XGitlabEvent])
+	switch eventType {
+	case GitlabPushEvent:
+		return payloadData.Username
+	}
 	return ""
 }
