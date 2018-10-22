@@ -106,7 +106,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 
 	hook, err := parser.Parse(r, provider)
 	if err != nil {
-		log.Printf("Eror Parsing Hook: %s", err)
+		log.Printf("Error Parsing Hook: %s", err)
 		http.Error(w, "Error parsing Hook: "+err.Error(), http.StatusBadRequest)
 		return
 	}

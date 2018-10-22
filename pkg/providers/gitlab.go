@@ -14,7 +14,7 @@ const (
 )
 
 const (
-	GitlabPushEvent Event = "push"
+	GitlabPushEvent Event = "Push Hook"
 )
 
 type GitlabProvider struct {
