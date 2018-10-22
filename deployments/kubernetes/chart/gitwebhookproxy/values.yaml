@@ -19,7 +19,8 @@ gitWebhookProxy:
     allowedPaths: "/github-webhook,/project"
     secret: "dummysecret"
     ignoredUsers: "stakater-user"
-  service: 
+  service:
+    annotations: {}
     forceSslRedirect: true
     ingressClass: external-ingress
     expose: true
