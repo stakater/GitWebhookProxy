@@ -1,8 +1,4 @@
 ---
-# Source: gitwebhookproxy/templates/ingress.yaml
-
-
----
 # Source: gitwebhookproxy/templates/deployment.yaml
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -11,8 +7,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.43
-    chart: "gitwebhookproxy-0.2.43"
+    version: 0.2.44
+    chart: "gitwebhookproxy-0.2.44"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -65,7 +61,7 @@ spec:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:0.2.43"
+        image: "stakater/gitwebhookproxy:0.2.44"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
         livenessProbe:
@@ -90,6 +86,10 @@ spec:
           timeoutSeconds: 5
 
 ---
+# Source: gitwebhookproxy/templates/ingress.yaml
+
+
+---
 # Source: gitwebhookproxy/templates/secret.yaml
 apiVersion: v1
 kind: Secret
@@ -98,8 +98,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.43
-    chart: "gitwebhookproxy-0.2.43"
+    version: 0.2.44
+    chart: "gitwebhookproxy-0.2.44"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -123,8 +123,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.43
-    chart: "gitwebhookproxy-0.2.43"
+    version: 0.2.44
+    chart: "gitwebhookproxy-0.2.44"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -149,8 +149,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.43
-    chart: "gitwebhookproxy-0.2.43"
+    version: 0.2.44
+    chart: "gitwebhookproxy-0.2.44"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
