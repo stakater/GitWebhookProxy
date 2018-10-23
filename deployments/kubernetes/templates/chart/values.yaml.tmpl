@@ -20,10 +20,11 @@ gitWebhookProxy:
     secret: "dummysecret"
     ignoredUsers: "stakater-user"
   service: 
+    labels:
+      expose: "true"
     annotations: {}
     forceSslRedirect: true
     ingressClass: external-ingress
-    expose: true
     additionalIngressAnnotations: 
       - key: monitor.stakater.com/enabled
         value: true
@@ -33,6 +34,7 @@ gitWebhookProxy:
         protocol: TCP
         targetPort: 8080
   ingress:
+    enabled: false
     annotations:
       - key: ingress.kubernetes.io/force-ssl-redirect
         value: "true"
