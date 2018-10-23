@@ -9,9 +9,6 @@ import (
 	"strings"
 )
 
-// Event defines a GitHub hook event type
-type Event string
-
 const (
 	GithubPushEvent Event = "push"
 )

@@ -1,13 +1,19 @@
 package providers
 
 import (
+	"encoding/json"
 	"strings"
+	"log"
 )
 
 // Header constants
 const (
 	XGitlabToken = "X-Gitlab-Token"
 	XGitlabEvent = "X-Gitlab-Event"
+)
+
+const (
+	GitlabPushEvent Event = "Push Hook"
 )
 
 type GitlabProvider struct {
@@ -20,9 +26,9 @@ func NewGitlabProvider(secret string) (*GitlabProvider, error) {
 	}, nil
 }
 
+// Not adding XGitlabToken to make token validation optional
 func (p *GitlabProvider) GetHeaderKeys() []string {
 	return []string{
-		XGitlabToken,
 		XGitlabEvent,
 		ContentTypeHeader,
 	}
@@ -40,5 +46,16 @@ func (p *GitlabProvider) Validate(hook Hook) bool {
 }
 
 func (p *GitlabProvider) GetCommitter(hook Hook) string {
+	var payloadData GitlabPushPayload
+	if err := json.Unmarshal(hook.Payload, &payloadData); err != nil {
+		log.Printf("Gitlab hook payload unmarshling failed")
+		return ""
+	}
+
+	eventType := Event(hook.Headers[XGitlabEvent])
+	switch eventType {
+	case GitlabPushEvent:
+		return payloadData.Username
+	}
 	return ""
 }

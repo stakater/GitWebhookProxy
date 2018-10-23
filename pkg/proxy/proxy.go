@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"crypto/tls"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/stakater/GitWebhookProxy/pkg/parser"
@@ -18,8 +19,12 @@ import (
 )
 
 var (
+	transport = &http.Transport{
+        TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+    }
 	httpClient = &http.Client{
 		Timeout: time.Second * 30,
+		Transport: transport,
 	}
 )
 
@@ -39,8 +44,10 @@ func (p *Proxy) isPathAllowed(path string) bool {
 
 	// Check if given passed exists in allowedPaths
 	for _, p := range p.allowedPaths {
-		if strings.TrimSuffix(strings.TrimSpace(p), "/") ==
-			strings.TrimSuffix(strings.TrimSpace(path), "/") {
+		allowedPath := strings.TrimSpace(p)
+		incomingPath := strings.TrimSpace(path)
+		if strings.TrimSuffix(allowedPath, "/") ==
+			strings.TrimSuffix(incomingPath, "/") || strings.HasPrefix(incomingPath, allowedPath) {
 			return true
 		}
 	}
@@ -106,7 +113,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 
 	hook, err := parser.Parse(r, provider)
 	if err != nil {
-		log.Printf("Eror Parsing Hook: %s", err)
+		log.Printf("Error Parsing Hook: %s", err)
 		http.Error(w, "Error parsing Hook: "+err.Error(), http.StatusBadRequest)
 		return
 	}
