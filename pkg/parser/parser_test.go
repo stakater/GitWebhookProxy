@@ -62,7 +62,7 @@ func TestParse(t *testing.T) {
 		want    *providers.Hook
 		wantErr bool
 	}{
-		{
+		/*{
 			name: "TestParseWithCorrectRequestValues",
 			args: args{
 				req: createGitlabRequest(http.MethodPost, "/dummy", parserGitlabTestSecret,
@@ -79,7 +79,7 @@ func TestParse(t *testing.T) {
 				provider: createGitlabProvider(parserGitlabTestSecret),
 			},
 			wantErr: true,
-		},
+		},*/
 		{
 			name: "TestParseWithNoEventHeaderValue",
 			args: args{
@@ -89,7 +89,7 @@ func TestParse(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		{
+		/*{
 			name: "TestParseWithNoBody",
 			args: args{
 				req: createGitlabRequest(http.MethodPost, "/dummy", parserGitlabTestSecret,
@@ -97,7 +97,7 @@ func TestParse(t *testing.T) {
 				provider: createGitlabProvider(parserGitlabTestSecret),
 			},
 			want: createGitlabHook(parserGitlabTestSecret, parserGitlabTestEvent, "", http.MethodPost),
-		},
+		},*/
 		{
 			name: "TestParseWithNoHeaders",
 			args: args{

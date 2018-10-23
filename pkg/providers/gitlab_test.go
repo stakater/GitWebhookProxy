@@ -72,7 +72,7 @@ func TestGitlabProvider_GetHeaderKeys(t *testing.T) {
 	}{
 		{
 			name: "TestGetHeaderKeysWithCorrectValues",
-			want: []string{XGitlabToken, XGitlabEvent, ContentTypeHeader},
+			want: []string{XGitlabEvent, ContentTypeHeader},
 		},
 	}
 	for _, tt := range tests {
