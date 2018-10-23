@@ -27,9 +27,9 @@ func NewGitlabProvider(secret string) (*GitlabProvider, error) {
 	}, nil
 }
 
+// Not adding XGitlabToken to make token validation optional
 func (p *GitlabProvider) GetHeaderKeys() []string {
 	return []string{
-		XGitlabToken,
 		XGitlabEvent,
 		ContentTypeHeader,
 	}
