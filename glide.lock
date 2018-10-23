@@ -1,12 +1,10 @@
-hash: 6487fdd921ddcee2f33b05f1e345ca36f162b72a620e8bdf6c15a86cc67255e3
-updated: 2018-10-22T15:22:18.92798102+05:00
+hash: 93609c878999b5dd8322e57c55368fa4b69b4a1083ebbecfbb9fc7a9130be99b
+updated: 2018-10-23T18:44:16.508340352+05:00
 imports:
 - name: github.com/julienschmidt/httprouter
   version: adbc77eec0d91467376ca515bc3a14b8434d0f18
 - name: github.com/namsral/flag
   version: 67f268f20922975c067ed799e4be6bacf152208c
-- name: github.com/sirupsen/logrus
-  version: ad15b42461921f1fb3529b058c6786c6a45d5162
 - name: gopkg.in/jarcoal/httpmock.v1
   version: eb84b840d3d6889d2458ceed28e3c6f0d109f6c8
 testImports: []

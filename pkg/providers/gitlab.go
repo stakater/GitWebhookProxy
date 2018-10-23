@@ -3,8 +3,7 @@ package providers
 import (
 	"encoding/json"
 	"strings"
-
-	"github.com/sirupsen/logrus"
+	"log"
 )
 
 // Header constants
@@ -49,7 +48,7 @@ func (p *GitlabProvider) Validate(hook Hook) bool {
 func (p *GitlabProvider) GetCommitter(hook Hook) string {
 	var payloadData GitlabPushPayload
 	if err := json.Unmarshal(hook.Payload, &payloadData); err != nil {
-		logrus.Errorf("Gitlab hook payload unmarshling failed")
+		log.Printf("Gitlab hook payload unmarshling failed")
 		return ""
 	}
 
