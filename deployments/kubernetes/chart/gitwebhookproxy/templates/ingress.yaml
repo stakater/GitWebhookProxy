@@ -4,9 +4,7 @@ kind: Ingress
 metadata:
 {{- if .Values.gitWebhookProxy.ingress.annotations }}
   annotations:
-{{- range $key, $value := .Values.gitWebhookProxy.ingress.annotations }}
-    {{ $key }}: {{ $value | quote }}
-{{- end }}
+{{ toYaml .Values.gitWebhookProxy.ingress.annotations | indent 4 }}
 {{- end }}
   labels:
 {{ include "labels.stakater" . | indent 4 }}

@@ -35,7 +35,7 @@ GitWebhookProxy can be configured by providing the following arguments either vi
 |---------------|-----------------------------------------------------------------------------------|----------|--------------------------------------------|
 | listenAddress | Address on which the proxy listens.                                               | `:8080`  | `127.0.0.1:80`                             |
 | upstreamURL   |          URL to which the proxy requests will be forwarded (required)             |          | `https://someci-instance-url.com/webhook/` |
-| secret        | Secret of the Webhook API. If not set validation is not made. But if it is set, GWP expects the token in header otherwise validation fails                     |          | `iamasecret`                               |
+| secret        | Secret of the Webhook API. If not set validation is not made.  |                  | `iamasecret` |
 | provider      | Git Provider which generates the Webhook                                          | `github` | `github` or `gitlab`                       |
 | allowedPaths  | Comma-Separated String List of allowed paths on the proxy                         |          | `/project` or `github-webhook/,project/`   |
 | ignoredUsers  | Comma-Separated String List of users to ignore while proxying Webhook request     |          | `someuser`                                 |
