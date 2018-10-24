@@ -26,9 +26,17 @@ func NewGitlabProvider(secret string) (*GitlabProvider, error) {
 	}, nil
 }
 
-// Not adding XGitlabToken to make token validation optional
+// Not adding XGitlabToken will make token validation optional
 func (p *GitlabProvider) GetHeaderKeys() []string {
-	return []string{
+	if (len(strings.TrimSpace(p.secret)) > 0) {
+		return []string {
+			XGitlabEvent,
+			XGitlabToken,
+			ContentTypeHeader,
+		}
+	}
+
+	return []string {
 		XGitlabEvent,
 		ContentTypeHeader,
 	}
@@ -38,17 +46,18 @@ func (p *GitlabProvider) GetHeaderKeys() []string {
 // https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token
 func (p *GitlabProvider) Validate(hook Hook) bool {
 	token := hook.Headers[XGitlabToken]
+	// Validation fails if secret is configured but did not receive from gitlab
 	if len(token) <= 0 {
 		return false
 	}
-
+	
 	return strings.TrimSpace(token) == strings.TrimSpace(p.secret)
 }
 
 func (p *GitlabProvider) GetCommitter(hook Hook) string {
 	var payloadData GitlabPushPayload
 	if err := json.Unmarshal(hook.Payload, &payloadData); err != nil {
-		log.Printf("Gitlab hook payload unmarshling failed")
+		log.Printf("Gitlab hook payload unmarshalling failed")
 		return ""
 	}
 
