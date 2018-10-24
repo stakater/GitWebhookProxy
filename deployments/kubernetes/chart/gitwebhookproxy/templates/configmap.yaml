@@ -6,7 +6,11 @@ metadata:
   labels:
 {{ include "labels.stakater" . | indent 4 }}
 {{ include "labels.chart" . | indent 4 }}
+{{- if .Values.gitWebhookProxy.useCustomName }}
+  name: {{ .Values.gitWebhookProxy.customName }}
+{{- else }}
   name: {{ template "name" . }}
+{{- end }}
 data:
     {{- with .Values.gitWebhookProxy.config.provider }}
     provider: {{ . }}

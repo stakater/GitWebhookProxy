@@ -9,7 +9,11 @@ metadata:
   labels:
 {{ include "labels.stakater" . | indent 4 }}
 {{ include "labels.chart" . | indent 4 }}
+{{- if .Values.gitWebhookProxy.useCustomName }}
+  name: {{ .Values.gitWebhookProxy.customName }}
+{{- else }}
   name: {{ template "name" . }}
+{{- end }}
   namespace: {{ .Values.gitWebhookProxy.namespace }}
 spec:
   rules:
@@ -17,7 +21,11 @@ spec:
     http:
       paths:
       - backend:
+        {{- if .Values.gitWebhookProxy.useCustomName }}
+          serviceName: {{ .Values.gitWebhookProxy.customName }}
+        {{- else }}
           serviceName: {{ template "name" . }}
+        {{- end }}
           servicePort: 80
   tls:
   - hosts:

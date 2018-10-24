@@ -4,7 +4,11 @@ metadata:
   labels:
 {{ include "labels.stakater" . | indent 4 }}
 {{ include "labels.chart" . | indent 4 }}
+{{- if .Values.gitWebhookProxy.useCustomName }}
+  name: {{ .Values.gitWebhookProxy.customName }}
+{{- else }}
   name: {{ template "name" . }}
+{{- end }}
 spec:
   replicas: 1
   revisionHistoryLimit: 2
@@ -14,8 +18,13 @@ spec:
   template:
     metadata:
       annotations:
+      {{- if .Values.gitWebhookProxy.useCustomName }}
+        configmap.reloader.stakater.com/reload: {{ .Values.gitWebhookProxy.customName }}
+        secret.reloader.stakater.com/reload: {{ .Values.gitWebhookProxy.customName }}
+      {{- else }}
         configmap.reloader.stakater.com/reload: {{ template "name" . }}
         secret.reloader.stakater.com/reload: {{ template "name" . }}
+      {{- end }}
       labels:
 {{ include "labels.selector" . | indent 8 }}
     spec:
@@ -29,30 +38,54 @@ spec:
           valueFrom:
             configMapKeyRef:
               key: provider
+            {{- if .Values.gitWebhookProxy.useCustomName }}
+              name: {{ .Values.gitWebhookProxy.customName }}
+            {{- else }}
               name: {{ template "name" . }}
+            {{- end }}
         - name: GWP_UPSTREAMURL
           valueFrom:
             configMapKeyRef:
               key: upstreamURL
+            {{- if .Values.gitWebhookProxy.useCustomName }}
+              name: {{ .Values.gitWebhookProxy.customName }}
+            {{- else }}
               name: {{ template "name" . }}
+            {{- end }}
         - name: GWP_ALLOWEDPATHS
           valueFrom:
             configMapKeyRef:
               key: allowedPaths
+            {{- if .Values.gitWebhookProxy.useCustomName }}
+              name: {{ .Values.gitWebhookProxy.customName }}
+            {{- else }}
               name: {{ template "name" . }}
+            {{- end }}
         - name: GWP_IGNOREDUSERS
           valueFrom:
             configMapKeyRef:
               key: ignoredUsers
+            {{- if .Values.gitWebhookProxy.useCustomName }}
+              name: {{ .Values.gitWebhookProxy.customName }}
+            {{- else }}
               name: {{ template "name" . }}
+            {{- end }}
         - name: GWP_SECRET
           valueFrom:
             secretKeyRef:
               key: secret
+            {{- if .Values.gitWebhookProxy.useCustomName }}
+              name: {{ .Values.gitWebhookProxy.customName }}
+            {{- else }}
               name: {{ template "name" . }}
+            {{- end }}
         image: "{{ .Values.gitWebhookProxy.image.name }}:{{ .Values.gitWebhookProxy.image.tag }}"
         imagePullPolicy: {{ .Values.gitWebhookProxy.image.pullPolicy }}
+      {{- if .Values.gitWebhookProxy.useCustomName }}
+        name: {{ .Values.gitWebhookProxy.customName }}
+      {{- else }}
         name: {{ template "name" . }}
+      {{- end }}
         livenessProbe:
           failureThreshold: 5
           httpGet:
