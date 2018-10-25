@@ -4,7 +4,7 @@ kubernetes:
   host: https://kubernetes.default
 
 gitWebhookProxy:
-  useCustomName: true
+  useCustomName: false
   customName: gitlabwebhookproxy
   namespace: default
   labels:
