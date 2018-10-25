@@ -16,7 +16,11 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{- define "labels.selector" -}}
+{{- if .Values.gitWebhookProxy.useCustomName -}}
+app: {{ .Values.gitWebhookProxy.customName }}
+{{- else -}}
 app: {{ template "name" . }}
+{{- end }}
 group: {{ .Values.gitWebhookProxy.labels.group }}
 provider: {{ .Values.gitWebhookProxy.labels.provider }}
 {{- end -}}
