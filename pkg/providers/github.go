@@ -36,6 +36,15 @@ func NewGithubProvider(secret string) (*GithubProvider, error) {
 }
 
 func (p *GithubProvider) GetHeaderKeys() []string {
+	if (len(strings.TrimSpace(p.secret)) > 0) {
+		return []string {
+			XHubSignature,
+			XGitHubDelivery,
+			XGitHubEvent,
+			ContentTypeHeader,
+		}
+	}
+
 	return []string{
 		XGitHubDelivery,
 		XGitHubEvent,
