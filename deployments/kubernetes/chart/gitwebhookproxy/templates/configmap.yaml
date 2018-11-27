@@ -4,12 +4,12 @@ metadata:
   annotations:
     fabric8.io/target-platform: kubernetes
   labels:
-{{ include "labels.stakater" . | indent 4 }}
-{{ include "labels.chart" . | indent 4 }}
+{{ include "gitwebhookproxy.labels.stakater" . | indent 4 }}
+{{ include "gitwebhookproxy.labels.chart" . | indent 4 }}
 {{- if .Values.gitWebhookProxy.useCustomName }}
   name: {{ .Values.gitWebhookProxy.customName }}
 {{- else }}
-  name: {{ template "name" . }}
+  name: {{ template "gitwebhookproxy.name" . }}
 {{- end }}
 data:
     {{- with .Values.gitWebhookProxy.config.provider }}

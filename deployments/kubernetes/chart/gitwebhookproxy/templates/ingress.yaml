@@ -7,12 +7,12 @@ metadata:
 {{ toYaml .Values.gitWebhookProxy.ingress.annotations | indent 4 }}
 {{- end }}
   labels:
-{{ include "labels.stakater" . | indent 4 }}
-{{ include "labels.chart" . | indent 4 }}
+{{ include "gitwebhookproxy.labels.stakater" . | indent 4 }}
+{{ include "gitwebhookproxy.labels.chart" . | indent 4 }}
 {{- if .Values.gitWebhookProxy.useCustomName }}
   name: {{ .Values.gitWebhookProxy.customName }}
 {{- else }}
-  name: {{ template "name" . }}
+  name: {{ template "gitwebhookproxy.name" . }}
 {{- end }}
   namespace: {{ .Values.gitWebhookProxy.namespace }}
 spec:
@@ -24,7 +24,7 @@ spec:
         {{- if .Values.gitWebhookProxy.useCustomName }}
           serviceName: {{ .Values.gitWebhookProxy.customName }}
         {{- else }}
-          serviceName: {{ template "name" . }}
+          serviceName: {{ template "gitwebhookproxy.name" . }}
         {{- end }}
           servicePort: 80
   tls:
