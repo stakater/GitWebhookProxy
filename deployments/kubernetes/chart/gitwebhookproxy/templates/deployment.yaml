@@ -2,19 +2,19 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-{{ include "labels.stakater" . | indent 4 }}
-{{ include "labels.chart" . | indent 4 }}
+{{ include "gitwebhookproxy.labels.stakater" . | indent 4 }}
+{{ include "gitwebhookproxy.labels.chart" . | indent 4 }}
 {{- if .Values.gitWebhookProxy.useCustomName }}
   name: {{ .Values.gitWebhookProxy.customName }}
 {{- else }}
-  name: {{ template "name" . }}
+  name: {{ template "gitwebhookproxy.name" . }}
 {{- end }}
 spec:
   replicas: 1
   revisionHistoryLimit: 2
   selector:
     matchLabels:
-{{ include "labels.selector" . | indent 6 }}
+{{ include "gitwebhookproxy.labels.selector" . | indent 6 }}
   template:
     metadata:
       annotations:
@@ -22,11 +22,11 @@ spec:
         configmap.reloader.stakater.com/reload: {{ .Values.gitWebhookProxy.customName }}
         secret.reloader.stakater.com/reload: {{ .Values.gitWebhookProxy.customName }}
       {{- else }}
-        configmap.reloader.stakater.com/reload: {{ template "name" . }}
-        secret.reloader.stakater.com/reload: {{ template "name" . }}
+        configmap.reloader.stakater.com/reload: {{ template "gitwebhookproxy.name" . }}
+        secret.reloader.stakater.com/reload: {{ template "gitwebhookproxy.name" . }}
       {{- end }}
       labels:
-{{ include "labels.selector" . | indent 8 }}
+{{ include "gitwebhookproxy.labels.selector" . | indent 8 }}
     spec:
       containers:
       - env:
@@ -41,7 +41,7 @@ spec:
             {{- if .Values.gitWebhookProxy.useCustomName }}
               name: {{ .Values.gitWebhookProxy.customName }}
             {{- else }}
-              name: {{ template "name" . }}
+              name: {{ template "gitwebhookproxy.name" . }}
             {{- end }}
         - name: GWP_UPSTREAMURL
           valueFrom:
@@ -50,7 +50,7 @@ spec:
             {{- if .Values.gitWebhookProxy.useCustomName }}
               name: {{ .Values.gitWebhookProxy.customName }}
             {{- else }}
-              name: {{ template "name" . }}
+              name: {{ template "gitwebhookproxy.name" . }}
             {{- end }}
         - name: GWP_ALLOWEDPATHS
           valueFrom:
@@ -59,7 +59,7 @@ spec:
             {{- if .Values.gitWebhookProxy.useCustomName }}
               name: {{ .Values.gitWebhookProxy.customName }}
             {{- else }}
-              name: {{ template "name" . }}
+              name: {{ template "gitwebhookproxy.name" . }}
             {{- end }}
         - name: GWP_IGNOREDUSERS
           valueFrom:
@@ -68,7 +68,7 @@ spec:
             {{- if .Values.gitWebhookProxy.useCustomName }}
               name: {{ .Values.gitWebhookProxy.customName }}
             {{- else }}
-              name: {{ template "name" . }}
+              name: {{ template "gitwebhookproxy.name" . }}
             {{- end }}
         - name: GWP_SECRET
           valueFrom:
@@ -77,14 +77,14 @@ spec:
             {{- if .Values.gitWebhookProxy.useCustomName }}
               name: {{ .Values.gitWebhookProxy.customName }}
             {{- else }}
-              name: {{ template "name" . }}
+              name: {{ template "gitwebhookproxy.name" . }}
             {{- end }}
         image: "{{ .Values.gitWebhookProxy.image.name }}:{{ .Values.gitWebhookProxy.image.tag }}"
         imagePullPolicy: {{ .Values.gitWebhookProxy.image.pullPolicy }}
       {{- if .Values.gitWebhookProxy.useCustomName }}
         name: {{ .Values.gitWebhookProxy.customName }}
       {{- else }}
-        name: {{ template "name" . }}
+        name: {{ template "gitwebhookproxy.name" . }}
       {{- end }}
         livenessProbe:
           failureThreshold: 5
