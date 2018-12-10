@@ -7,8 +7,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.55
-    chart: "gitwebhookproxy-0.2.55"
+    version: 0.2.56
+    chart: "gitwebhookproxy-0.2.56"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -61,7 +61,7 @@ spec:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:0.2.55"
+        image: "stakater/gitwebhookproxy:0.2.56"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
         livenessProbe:
@@ -98,8 +98,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.55
-    chart: "gitwebhookproxy-0.2.55"
+    version: 0.2.56
+    chart: "gitwebhookproxy-0.2.56"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -110,22 +110,16 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    fabric8.io/ingress.annotations: |-
-      ingress.kubernetes.io/force-ssl-redirect: "true"
-      kubernetes.io/ingress.class: external-ingress
-      monitor.stakater.com/enabled: "true"
-      
   labels:
-    expose: "true"
-    
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.55
-    chart: "gitwebhookproxy-0.2.55"
+    version: 0.2.56
+    chart: "gitwebhookproxy-0.2.56"
     release: "RELEASE-NAME"
     heritage: "Tiller"
+    expose: "true"
+    
   name: gitwebhookproxy
 spec:
   ports:
@@ -148,8 +142,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.55
-    chart: "gitwebhookproxy-0.2.55"
+    version: 0.2.56
+    chart: "gitwebhookproxy-0.2.56"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
