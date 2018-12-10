@@ -1,22 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-{{- if or .Values.gitWebhookProxy.service.annotations .Values.gitWebhookProxy.ingress.annotations }}
-  annotations:
-{{- end }}
-{{- if .Values.gitWebhookProxy.ingress.annotations }}
-    fabric8.io/ingress.annotations: |-
-{{ toYaml .Values.gitWebhookProxy.ingress.annotations | indent 6 }}
-{{- end }}
 {{- if .Values.gitWebhookProxy.service.annotations }}
+  annotations:
 {{ toYaml .Values.gitWebhookProxy.service.annotations | indent 4 }}
 {{- end }}
   labels:
+{{ include "gitwebhookproxy.labels.stakater" . | indent 4 }}
+{{ include "gitwebhookproxy.labels.chart" . | indent 4 }}
 {{- if .Values.gitWebhookProxy.service.labels }}
 {{ toYaml .Values.gitWebhookProxy.service.labels | indent 4 }}
 {{- end }}
-{{ include "gitwebhookproxy.labels.stakater" . | indent 4 }}
-{{ include "gitwebhookproxy.labels.chart" . | indent 4 }}
 {{- if .Values.gitWebhookProxy.useCustomName }}
   name: {{ .Values.gitWebhookProxy.customName }}
 {{- else }}
