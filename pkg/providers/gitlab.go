@@ -10,10 +10,12 @@ import (
 const (
 	XGitlabToken = "X-Gitlab-Token"
 	XGitlabEvent = "X-Gitlab-Event"
+	GitlabName = "gitlab"
 )
 
 const (
 	GitlabPushEvent Event = "Push Hook"
+	GitlabMergeRequestEvent Event = "Merge Request Hook"
 )
 
 type GitlabProvider struct {
@@ -24,6 +26,10 @@ func NewGitlabProvider(secret string) (*GitlabProvider, error) {
 	return &GitlabProvider{
 		secret: secret,
 	}, nil
+}
+
+func (p *GitlabProvider) GetProviderName() string {
+	return GitlabName;
 }
 
 // Not adding XGitlabToken will make token validation optional

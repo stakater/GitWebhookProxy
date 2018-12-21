@@ -19,6 +19,7 @@ type Provider interface {
 	GetHeaderKeys() []string
 	Validate(hook Hook) bool
 	GetCommitter(hook Hook) string
+	GetProviderName() string
 }
 
 func assertProviderImplementations() {

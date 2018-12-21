@@ -60,6 +60,11 @@ func (p *Proxy) isIgnoredUser(committer string) bool {
 			return true
 		}
 	}
+	
+	if (committer == "" && p.provider == providers.GithubName){
+		return true
+	}
+	
 	return false
 }
 
@@ -119,6 +124,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 	}
 
 	committer := provider.GetCommitter(*hook)
+	log.Printf("Incoming request from user: %s", committer)
 	if p.isIgnoredUser(committer) {
 		log.Printf("Ignoring request for user: %s", committer)
 		w.WriteHeader(http.StatusOK)
@@ -127,7 +133,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 	}
 
 	if len(strings.TrimSpace(p.secret)) > 0 && !provider.Validate(*hook) {
-		log.Printf("Eror Validating Hook: %v", err)
+		log.Printf("Error Validating Hook: %v", err)
 		http.Error(w, "Error validating Hook", http.StatusBadRequest)
 		return
 	}
