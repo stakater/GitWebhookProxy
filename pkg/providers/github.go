@@ -11,6 +11,7 @@ import (
 
 const (
 	GithubPushEvent Event = "push"
+	GithubPullRequestEvent Event = "pull_request"
 )
 
 // Header constants
@@ -23,6 +24,7 @@ const (
 const (
 	SignaturePrefix = "sha1="
 	SignatureLength = 45
+	GithubName = "github"
 )
 
 type GithubProvider struct {
@@ -65,17 +67,30 @@ func (p *GithubProvider) Validate(hook Hook) bool {
 	return IsValidPayload(p.secret, githubSignature[len(SignaturePrefix):], hook.Payload)
 }
 
+func (p *GithubProvider) GetProviderName() string {
+	return GithubName;
+}
+
 func (p *GithubProvider) GetCommitter(hook Hook) string {
-	var payloadData GithubPushPayload
-	if err := json.Unmarshal(hook.Payload, &payloadData); err != nil {
-		return ""
+	var pushPayloadData GithubPushPayload
+	var pullRequestPayloadData GithubPullRequestPayload
+	if err := json.Unmarshal(hook.Payload, &pushPayloadData); err != nil {
+		log.Printf("Github payload unmarshaling failed for Push event: %v", err)
+		log.Printf("Now trying to unmarshal for pull request event")
+		if err = json.Unmarshal(hook.Payload, &pullRequestPayloadData); err != nil {
+			log.Printf("Github payload unmarshaling failed for pull request event: %v", err)
+			return ""
+		}
 	}
 
 	eventType := Event(hook.Headers[XGitHubEvent])
 	switch eventType {
 	case GithubPushEvent:
-		return payloadData.HeadCommit.Committer.Username
+		return pushPayloadData.Sender.Login
+	case GithubPullRequestEvent:
+		return pullRequestPayloadData.Sender.Login
 	}
+	log.Printf("Event type is not supported: %v", eventType)
 	return ""
 }
 
