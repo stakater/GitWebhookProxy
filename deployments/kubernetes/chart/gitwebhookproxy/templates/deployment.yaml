@@ -4,6 +4,14 @@ metadata:
   labels:
 {{ include "gitwebhookproxy.labels.stakater" . | indent 4 }}
 {{ include "gitwebhookproxy.labels.chart" . | indent 4 }}
+  annotations:
+  {{- if .Values.gitWebhookProxy.useCustomName }}
+    configmap.reloader.stakater.com/reload: {{ .Values.gitWebhookProxy.customName }}
+    secret.reloader.stakater.com/reload: {{ .Values.gitWebhookProxy.customName }}
+  {{- else }}
+    configmap.reloader.stakater.com/reload: {{ template "gitwebhookproxy.name" . }}
+    secret.reloader.stakater.com/reload: {{ template "gitwebhookproxy.name" . }}
+  {{- end }}
 {{- if .Values.gitWebhookProxy.useCustomName }}
   name: {{ .Values.gitWebhookProxy.customName }}
 {{- else }}
@@ -17,14 +25,6 @@ spec:
 {{ include "gitwebhookproxy.labels.selector" . | indent 6 }}
   template:
     metadata:
-      annotations:
-      {{- if .Values.gitWebhookProxy.useCustomName }}
-        configmap.reloader.stakater.com/reload: {{ .Values.gitWebhookProxy.customName }}
-        secret.reloader.stakater.com/reload: {{ .Values.gitWebhookProxy.customName }}
-      {{- else }}
-        configmap.reloader.stakater.com/reload: {{ template "gitwebhookproxy.name" . }}
-        secret.reloader.stakater.com/reload: {{ template "gitwebhookproxy.name" . }}
-      {{- end }}
       labels:
 {{ include "gitwebhookproxy.labels.selector" . | indent 8 }}
     spec:
