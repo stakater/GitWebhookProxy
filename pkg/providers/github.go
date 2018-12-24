@@ -79,7 +79,7 @@ func (p *GithubProvider) GetCommitter(hook Hook) string {
 		log.Printf("Now trying to unmarshal for pull request event")
 		if err = json.Unmarshal(hook.Payload, &pullRequestPayloadData); err != nil {
 			log.Printf("Github payload unmarshaling failed for pull request event: %v", err)
-			return ""
+			return "error"
 		}
 	}
 
@@ -90,7 +90,7 @@ func (p *GithubProvider) GetCommitter(hook Hook) string {
 	case GithubPullRequestEvent:
 		return pullRequestPayloadData.Sender.Login
 	}
-	log.Printf("Event type is not supported: %v", eventType)
+	log.Printf("Not a pull request or push event: %v", eventType)
 	return ""
 }
 

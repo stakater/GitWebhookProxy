@@ -61,7 +61,7 @@ func (p *Proxy) isIgnoredUser(committer string) bool {
 		}
 	}
 	
-	if (committer == "" && p.provider == providers.GithubName){
+	if (committer == "error" && p.provider == providers.GithubName){
 		return true
 	}
 	
