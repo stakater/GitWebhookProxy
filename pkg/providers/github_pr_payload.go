@@ -166,7 +166,13 @@ type GithubPullRequestPayload struct {
 				MirrorURL        *string     `json:"mirror_url"`
 				Archived         bool        `json:"archived"`
 				OpenIssuesCount  int64       `json:"open_issues_count"`
-				License          *string     `json:"license"`
+				License          struct {
+					Key    string `json:"key"`
+					Name   string `json:"name"`
+					SpdxID string `json:"spdx_id"`
+					URL    string `json:"url"`
+					NodeID string `json:"node_id"`
+				} `json:"license"`
 				Forks            int64       `json:"forks"`
 				OpenIssues       int64       `json:"open_issues"`
 				Watchers         int64       `json:"watchers"`
@@ -284,7 +290,13 @@ type GithubPullRequestPayload struct {
 				MirrorURL        *string     `json:"mirror_url"`
 				Archived         bool        `json:"archived"`
 				OpenIssuesCount  int64       `json:"open_issues_count"`
-				License          *string     `json:"license"`
+				License          struct {
+					Key    string `json:"key"`
+					Name   string `json:"name"`
+					SpdxID string `json:"spdx_id"`
+					URL    string `json:"url"`
+					NodeID string `json:"node_id"`
+				} `json:"license"`
 				Forks            int64       `json:"forks"`
 				OpenIssues       int64       `json:"open_issues"`
 				Watchers         int64       `json:"watchers"`
@@ -437,7 +449,13 @@ type GithubPullRequestPayload struct {
 		MirrorURL        *string     `json:"mirror_url"`
 		Archived         bool        `json:"archived"`
 		OpenIssuesCount  int64       `json:"open_issues_count"`
-		License          *string     `json:"license"`
+		License          struct {
+			Key    string `json:"key"`
+			Name   string `json:"name"`
+			SpdxID string `json:"spdx_id"`
+			URL    string `json:"url"`
+			NodeID string `json:"node_id"`
+		} `json:"license"`
 		Forks            int64       `json:"forks"`
 		OpenIssues       int64       `json:"open_issues"`
 		Watchers         int64       `json:"watchers"`
