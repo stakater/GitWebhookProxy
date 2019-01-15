@@ -9,8 +9,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: 0.2.61
-    chart: "gitwebhookproxy-0.2.61"
+    version: 0.2.62
+    chart: "gitwebhookproxy-0.2.62"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: gitwebhookproxy
