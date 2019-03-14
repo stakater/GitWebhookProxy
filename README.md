@@ -34,8 +34,8 @@ GitWebhookProxy can be configured by providing the following arguments either vi
 | Parameter     | Description                                                                       | Default  | Example                                    |
 |---------------|-----------------------------------------------------------------------------------|----------|--------------------------------------------|
 | listenAddress | Address on which the proxy listens.                                               | `:8080`  | `127.0.0.1:80`                             |
-| upstreamURL   |          URL to which the proxy requests will be forwarded (required)             |          | `https://someci-instance-url.com/webhook/` |
-| secret        | Secret of the Webhook API. If not set validation is not made.  |                  | `iamasecret` |
+| upstreamURL   | URL to which the proxy requests will be forwarded (required)                      |          | `https://someci-instance-url.com/webhook/` |
+| secret        | Secret of the Webhook API. If not set validation is not made.                     |          | `iamasecret`                               |
 | provider      | Git Provider which generates the Webhook                                          | `github` | `github` or `gitlab`                       |
 | allowedPaths  | Comma-Separated String List of allowed paths on the proxy                         |          | `/project` or `github-webhook/,project/`   |
 | ignoredUsers  | Comma-Separated String List of users to ignore while proxying Webhook request     |          | `someuser`                                 |
@@ -109,6 +109,15 @@ Alternatively if you have configured helm on your cluster, you can add gitwebhoo
 
 3. Install the chart
    * `helm install stakater/gitwebhookproxy -f gitwebhookproxy/values.yaml -n gitwebhookproxy`
+
+## Running outside Kubernetes
+
+### Run with Docker
+
+To run the docker container outside of Kubernetes, you can pass the configuration as the Container Entrypoint arguments. 
+The docker image is available on docker hub. Example below: 
+
+`docker run stakater/gitwebhookproxy:v0.2.63 -listen :8080 -upstreamURL google.com -provider github -secret "test"`
 
 ## Help
 
