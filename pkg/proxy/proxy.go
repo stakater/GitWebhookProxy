@@ -101,7 +101,11 @@ func (p *Proxy) redirect(hook *providers.Hook, redirectURL string) (*http.Respon
 }
 
 func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	redirectURL := p.upstreamURL + r.URL.Path + "?" + r.URL.RawQuery
+	redirectURL := p.upstreamURL + r.URL.Path
+
+	if r.URL.RawQuery != "" {
+		redirectURL += "?" + r.URL.RawQuery
+	}
 
 	log.Printf("Proxying Request from '%s', to upstream '%s'\n", r.URL, redirectURL)
 
