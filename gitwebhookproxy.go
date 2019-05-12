@@ -18,7 +18,9 @@ var (
 	provider      = flagSet.String("provider", "github", "Git Provider which generates the Webhook")
 	allowedPaths  = flagSet.String("allowedPaths", "", "Comma-Separated String List of allowed paths")
 	ignoredUsers  = flagSet.String("ignoredUsers", "", "Comma-Separated String List of users to ignore while proxying Webhook request")
+	allowedUsers  = flagSet.String("allowedUser", "", "Comma-Separated String List of users to allow while proxying Webhook request")
 )
+
 
 func validateRequiredFlags() {
 	isValid := true
