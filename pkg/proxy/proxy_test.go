@@ -1007,3 +1007,79 @@ func TestProxy_isIgnoredUser(t *testing.T) {
 		})
 	}
 }
+
+func TestProxy_isAllowedUser(t *testing.T) {
+	type fields struct {
+		provider     string
+		upstreamURL  string
+		allowedPaths []string
+		secret       string
+		allowedUsers []string
+	}
+	type args struct {
+		committer string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			name: "TestIsAllowedUserWithEmptyList",
+			fields: fields{
+				provider:     providers.GithubProviderKind,
+				upstreamURL:  "https://dummyurl.com",
+				allowedPaths: []string{"/path1", "/path2"},
+				secret:       "secret",
+				allowedUsers: []string{},
+			},
+			args: args{
+				committer: "user",
+			},
+			want: false,
+		},
+		{
+			name: "TestIsAllowedUserWithValidList",
+			fields: fields{
+				provider:     providers.GithubProviderKind,
+				upstreamURL:  "https://dummyurl.com",
+				allowedPaths: []string{"/path1", "/path2"},
+				secret:       "secret",
+				allowedUsers: []string{"user1", "user2"},
+			},
+			args: args{
+				committer: "user2",
+			},
+			want: true,
+		},
+		{
+			name: "TestIsNotAllowedUserWithValidList",
+			fields: fields{
+				provider:     providers.GithubProviderKind,
+				upstreamURL:  "https://dummyurl.com",
+				allowedPaths: []string{"/path1", "/path2"},
+				secret:       "secret",
+				allowedUsers: []string{"user1", "user2"},
+			},
+			args: args{
+				committer: "user3",
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &Proxy{
+				provider:     tt.fields.provider,
+				upstreamURL:  tt.fields.upstreamURL,
+				allowedPaths: tt.fields.allowedPaths,
+				secret:       tt.fields.secret,
+				allowedUsers: tt.fields.allowedUsers,
+			}
+			if got := p.isAllowedUser(tt.args.committer); got != tt.want {
+				t.Errorf("Proxy.isAllowedUser() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
