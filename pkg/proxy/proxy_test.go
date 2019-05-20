@@ -2,11 +2,11 @@ package proxy
 
 import (
 	"bytes"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
-	"io/ioutil"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/stakater/GitWebhookProxy/pkg/providers"
@@ -23,11 +23,11 @@ const (
 )
 
 var (
-	proxyGitlabTestPayload   = getGitlabPayload()
+	proxyGitlabTestPayload = getGitlabPayload()
 )
 
 func getGitlabPayload() []byte {
-	payload, _   := ioutil.ReadFile("gitlab_test_payload.json")
+	payload, _ := ioutil.ReadFile("gitlab_test_payload.json")
 	return payload
 }
 
@@ -267,8 +267,8 @@ func TestProxy_redirect(t *testing.T) {
 		secret       string
 	}
 	type args struct {
-		hook *providers.Hook
-		path string
+		hook        *providers.Hook
+		redirectURL string
 	}
 	tests := []struct {
 		name               string
@@ -287,8 +287,8 @@ func TestProxy_redirect(t *testing.T) {
 				secret:       "dummy",
 			},
 			args: args{
-				path: "/post",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
+				redirectURL: httpBinURLSecure + "/post",
+				hook:        createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
 			wantRedirectedHost: httpBinURL,
@@ -302,8 +302,8 @@ func TestProxy_redirect(t *testing.T) {
 				secret:       "dummy",
 			},
 			args: args{
-				path: "/get",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
+				redirectURL: httpBinURLSecure + "/get",
+				hook:        createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusMethodNotAllowed,
 			wantRedirectedHost: httpBinURL,
@@ -317,8 +317,8 @@ func TestProxy_redirect(t *testing.T) {
 				secret:       "dummy",
 			},
 			args: args{
-				path: "",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
+				redirectURL: httpBinURLSecure + "/post",
+				hook:        createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
 			wantRedirectedHost: httpBinURL,
@@ -332,8 +332,8 @@ func TestProxy_redirect(t *testing.T) {
 				secret:       "dummy",
 			},
 			args: args{
-				path: "",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
+				redirectURL: httpBinURLSecure + "/post",
+				hook:        createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
 			wantRedirectedHost: httpBinURL,
@@ -347,8 +347,8 @@ func TestProxy_redirect(t *testing.T) {
 				secret:       "dummy",
 			},
 			args: args{
-				path: "/post",
-				hook: nil,
+				redirectURL: httpBinURLSecure + "/post",
+				hook:        nil,
 			},
 			wantErr: true,
 		},
@@ -361,8 +361,8 @@ func TestProxy_redirect(t *testing.T) {
 				secret:       "dummy",
 			},
 			args: args{
-				path: "/post",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
+				redirectURL: "https://invalidurl/post",
+				hook:        createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantErr: true,
 		},
@@ -375,8 +375,8 @@ func TestProxy_redirect(t *testing.T) {
 				secret:       "dummy",
 			},
 			args: args{
-				path: "/post",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
+				redirectURL: "htttpsss://" + httpBinURL + "/post",
+				hook:        createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantErr: true,
 		},
@@ -389,8 +389,8 @@ func TestProxy_redirect(t *testing.T) {
 				secret:       "dummy",
 			},
 			args: args{
-				path: "/post",
-				hook: createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
+				redirectURL: httpBinURL + "/post",
+				hook:        createGitlabHook(proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestBody, http.MethodPost),
 			},
 			wantStatusCode:     http.StatusOK,
 			wantRedirectedHost: httpBinURL,
@@ -404,7 +404,7 @@ func TestProxy_redirect(t *testing.T) {
 				allowedPaths: tt.fields.allowedPaths,
 				secret:       tt.fields.secret,
 			}
-			gotResp, gotErrors := p.redirect(tt.args.hook, tt.args.path)
+			gotResp, gotErrors := p.redirect(tt.args.hook, tt.args.redirectURL)
 
 			if (gotErrors != nil) != tt.wantErr {
 				t.Errorf("Parse() error = %v, wantErr %v", gotErrors, tt.wantErr)

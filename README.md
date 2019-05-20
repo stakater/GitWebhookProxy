@@ -119,6 +119,18 @@ The docker image is available on docker hub. Example below:
 
 `docker run stakater/gitwebhookproxy:v0.2.63 -listen :8080 -upstreamURL google.com -provider github -secret "test"`
 
+### Run with Docker compose
+
+For docker compose, the syntax is a bit different
+
+```yaml
+jenkinswebhookproxy: 
+    image: 'stakater/gitwebhookproxy:latest'
+    command: ["-listen", ":8080", "-secret", "test", "-upstreamURL", "jenkins.example.com, "-allowedPaths", "/github-webhook,/ghprbhook"]
+    restart: on-failure
+```
+
+
 ## Help
 
 **Got a question?**
