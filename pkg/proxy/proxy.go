@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"bytes"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -10,7 +11,6 @@ import (
 	"net/url"
 	"strings"
 	"time"
-	"crypto/tls"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/stakater/GitWebhookProxy/pkg/parser"
@@ -20,10 +20,10 @@ import (
 
 var (
 	transport = &http.Transport{
-        TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-    }
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	httpClient = &http.Client{
-		Timeout: time.Second * 30,
+		Timeout:   time.Second * 30,
 		Transport: transport,
 	}
 )
@@ -60,21 +60,21 @@ func (p *Proxy) isIgnoredUser(committer string) bool {
 			return true
 		}
 	}
-	
-	if (committer == "" && p.provider == providers.GithubName){
+
+	if committer == "" && p.provider == providers.GithubName {
 		return true
 	}
-	
+
 	return false
 }
 
-func (p *Proxy) redirect(hook *providers.Hook, path string) (*http.Response, error) {
+func (p *Proxy) redirect(hook *providers.Hook, redirectURL string) (*http.Response, error) {
 	if hook == nil {
 		return nil, errors.New("Cannot redirect with nil Hook")
 	}
 
 	// Parse url to check validity
-	url, err := url.Parse(p.upstreamURL + path)
+	url, err := url.Parse(redirectURL)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,13 @@ func (p *Proxy) redirect(hook *providers.Hook, path string) (*http.Response, err
 }
 
 func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	log.Printf("Proxying Request from '%s', to upstream '%s'\n", r.URL, p.upstreamURL+r.URL.Path)
+	redirectURL := p.upstreamURL + r.URL.Path
+
+	if r.URL.RawQuery != "" {
+		redirectURL += "?" + r.URL.RawQuery
+	}
+
+	log.Printf("Proxying Request from '%s', to upstream '%s'\n", r.URL, redirectURL)
 
 	if !p.isPathAllowed(r.URL.Path) {
 		log.Printf("Not allowed to proxy path: '%s'", r.URL.Path)
@@ -138,26 +144,26 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
-	resp, errs := p.redirect(hook, r.URL.Path)
+	resp, errs := p.redirect(hook, redirectURL)
 	if errs != nil {
-		log.Printf("Error Redirecting '%s' to upstream '%s': %s\n", r.URL, p.upstreamURL+r.URL.Path, errs)
-		http.Error(w, "Error Redirecting '"+r.URL.String()+"' to upstream '"+p.upstreamURL+r.URL.Path+"'", http.StatusInternalServerError)
+		log.Printf("Error Redirecting '%s' to upstream '%s': %s\n", r.URL, redirectURL, errs)
+		http.Error(w, "Error Redirecting '"+r.URL.String()+"' to upstream '"+redirectURL+"'", http.StatusInternalServerError)
 		return
 	}
 
 	if resp.StatusCode >= 400 {
-		log.Printf("Error Redirecting '%s' to upstream '%s', Upstream Redirect Status: %s\n", r.URL, p.upstreamURL+r.URL.Path, resp.Status)
-		http.Error(w, "Error Redirecting '"+r.URL.String()+"' to upstream '"+p.upstreamURL+r.URL.Path+"' Upstream Redirect Status:"+resp.Status, resp.StatusCode)
+		log.Printf("Error Redirecting '%s' to upstream '%s', Upstream Redirect Status: %s\n", r.URL, redirectURL, resp.Status)
+		http.Error(w, "Error Redirecting '"+r.URL.String()+"' to upstream '"+redirectURL+"' Upstream Redirect Status:"+resp.Status, resp.StatusCode)
 		return
 	}
 
 	log.Printf("Redirected incomming request '%s' to '%s' with Response: '%s'\n",
-		r.URL, p.upstreamURL+r.URL.Path, resp.Status)
+		r.URL, redirectURL, resp.Status)
 
 	responseBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Error Reading upstream '%s' response body\n", r.URL)
-		http.Error(w, "Error Reading upstream '"+p.upstreamURL+r.URL.Path+"' Response body", http.StatusInternalServerError)
+		http.Error(w, "Error Reading upstream '"+redirectURL+"' Response body", http.StatusInternalServerError)
 		return
 	}
 
