@@ -21,6 +21,7 @@ gitWebhookProxy:
     allowedPaths: "/github-webhook,/project"
     secret: ""
     ignoredUsers: "stakater-user"
+    allowedUsers: "my-user"
   service:
     labels:
       expose: "true"
@@ -39,4 +40,3 @@ gitWebhookProxy:
     host: gitwebhookproxy.tools.stackator.com
     serviceName: gitwebhookproxy
     servicePort: 80
-
