@@ -75,11 +75,7 @@ func (p *Proxy) isAllowedUser(committer string) bool {
 			return true
 		}
 	}
-
-	if (committer == "" && p.provider == providers.GithubName){
-		return true
-	}
-
+	
 	return false
 }
 
