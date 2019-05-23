@@ -56,11 +56,11 @@ spec:
             configMapKeyRef:
               key: ignoredUsers
               name: gitwebhookproxy
-          - name: GWP_ALLOWEDUSERS
-            valueFrom:
-              configMapKeyRef:
-                key: allowedUsers
-                name: gitwebhookproxy
+        - name: GWP_ALLOWEDUSERS
+          valueFrom:
+            configMapKeyRef:
+              key: allowedUsers
+              name: gitwebhookproxy
         - name: GWP_SECRET
           valueFrom:
             secretKeyRef:
