@@ -70,15 +70,15 @@ spec:
             {{- else }}
               name: {{ template "gitwebhookproxy.name" . }}
             {{- end }}
-          - name: GWP_ALLOWEDUSERS
-            valueFrom:
-              configMapKeyRef:
-                key: allowedUsers
-              {{- if .Values.gitWebhookProxy.useCustomName }}
-                name: {{ .Values.gitWebhookProxy.customName }}
-              {{- else }}
-                name: {{ template "gitwebhookproxy.name" . }}
-              {{- end }}
+        - name: GWP_ALLOWEDUSERS
+          valueFrom:
+            configMapKeyRef:
+              key: allowedUsers
+            {{- if .Values.gitWebhookProxy.useCustomName }}
+              name: {{ .Values.gitWebhookProxy.customName }}
+            {{- else }}
+              name: {{ template "gitwebhookproxy.name" . }}
+            {{- end }}
         - name: GWP_SECRET
           valueFrom:
             secretKeyRef:
