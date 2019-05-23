@@ -39,6 +39,7 @@ GitWebhookProxy can be configured by providing the following arguments either vi
 | provider      | Git Provider which generates the Webhook                                          | `github` | `github` or `gitlab`                       |
 | allowedPaths  | Comma-Separated String List of allowed paths on the proxy                         |          | `/project` or `github-webhook/,project/`   |
 | ignoredUsers  | Comma-Separated String List of users to ignore while proxying Webhook request     |          | `someuser`                                 |
+| allowedUsers  | Comma-Separated String List of users to allow while proxying Webhook request      |          | `someuser`                                 |
 
 ## DEPLOYING TO KUBERNETES
 
@@ -114,8 +115,8 @@ Alternatively if you have configured helm on your cluster, you can add gitwebhoo
 
 ### Run with Docker
 
-To run the docker container outside of Kubernetes, you can pass the configuration as the Container Entrypoint arguments. 
-The docker image is available on docker hub. Example below: 
+To run the docker container outside of Kubernetes, you can pass the configuration as the Container Entrypoint arguments.
+The docker image is available on docker hub. Example below:
 
 `docker run stakater/gitwebhookproxy:v0.2.63 -listen :8080 -upstreamURL google.com -provider github -secret "test"`
 

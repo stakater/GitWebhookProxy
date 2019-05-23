@@ -34,6 +34,7 @@ type Proxy struct {
 	allowedPaths []string
 	secret       string
 	ignoredUsers []string
+	allowedUsers []string
 }
 
 func (p *Proxy) isPathAllowed(path string) bool {
@@ -61,10 +62,20 @@ func (p *Proxy) isIgnoredUser(committer string) bool {
 		}
 	}
 
-	if committer == "" && p.provider == providers.GithubName {
+	if (committer == "" && p.provider == providers.GithubName){
 		return true
 	}
 
+	return false
+}
+
+func (p *Proxy) isAllowedUser(committer string) bool {
+	if len(p.allowedUsers) > 0 {
+		if exists, _ := utils.InArray(p.allowedUsers, committer); exists {
+			return true
+		}
+	}
+	
 	return false
 }
 
@@ -131,7 +142,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 
 	committer := provider.GetCommitter(*hook)
 	log.Printf("Incoming request from user: %s", committer)
-	if p.isIgnoredUser(committer) {
+	if p.isIgnoredUser(committer) && (! p.isAllowedUser(committer)) {
 		log.Printf("Ignoring request for user: %s", committer)
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(fmt.Sprintf("Ignoring request for user: %s", committer)))

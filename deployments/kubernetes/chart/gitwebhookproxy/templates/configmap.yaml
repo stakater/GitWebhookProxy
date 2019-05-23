@@ -22,3 +22,6 @@ data:
     {{- with .Values.gitWebhookProxy.config.ignoredUsers }}
     ignoredUsers: {{ . }}
     {{- end }}
+    {{- with .Values.gitWebhookProxy.config.allowedUsers }}
+    allowedUsers: {{ . }}
+    {{- end }}
