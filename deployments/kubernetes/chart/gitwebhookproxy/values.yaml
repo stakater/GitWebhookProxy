@@ -10,10 +10,10 @@ gitWebhookProxy:
   labels:
     provider: stakater
     group: com.stakater.platform
-    version: v0.2.65
+    version: v0.2.66
   image:
     name: stakater/gitwebhookproxy
-    tag: "v0.2.65"
+    tag: "v0.2.66"
     pullPolicy: IfNotPresent
   config:
     provider: github
@@ -21,7 +21,7 @@ gitWebhookProxy:
     allowedPaths: "/github-webhook,/project"
     secret: ""
     ignoredUsers: "stakater-user"
-    allowedUsers: "my-user"
+    allowedUsers: "myuser"
   service:
     labels:
       expose: "true"
