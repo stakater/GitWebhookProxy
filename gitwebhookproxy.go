@@ -21,7 +21,6 @@ var (
 	allowedUsers  = flagSet.String("allowedUser", "", "Comma-Separated String List of users to allow while proxying Webhook request")
 )
 
-
 func validateRequiredFlags() {
 	isValid := true
 	if len(strings.TrimSpace(*upstreamURL)) == 0 {

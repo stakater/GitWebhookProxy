@@ -42,8 +42,7 @@ func TestNewGitlabProvider(t *testing.T) {
 		{
 			name:    "TestNewGitlabProviderWithNoSecret",
 			args:    args{},
-			want: &GitlabProvider{
-			},
+			want:    &GitlabProvider{},
 			wantErr: false,
 		},
 	}

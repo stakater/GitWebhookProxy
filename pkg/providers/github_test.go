@@ -42,8 +42,7 @@ func TestNewGithubProvider(t *testing.T) {
 		{
 			name:    "TestNewGithubProviderWithNoSecret",
 			args:    args{},
-			want: &GithubProvider{
-			},
+			want:    &GithubProvider{},
 			wantErr: false,
 		},
 	}

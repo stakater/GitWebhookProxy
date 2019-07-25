@@ -40,7 +40,7 @@ func TestNewProvider(t *testing.T) {
 				provider: GithubProviderKind,
 				secret:   "",
 			},
-			want:  &GithubProvider{
+			want: &GithubProvider{
 				secret: "",
 			},
 		},

@@ -2,19 +2,19 @@ package providers
 
 import (
 	"encoding/json"
-	"strings"
 	"log"
+	"strings"
 )
 
 // Header constants
 const (
 	XGitlabToken = "X-Gitlab-Token"
 	XGitlabEvent = "X-Gitlab-Event"
-	GitlabName = "gitlab"
+	GitlabName   = "gitlab"
 )
 
 const (
-	GitlabPushEvent Event = "Push Hook"
+	GitlabPushEvent         Event = "Push Hook"
 	GitlabMergeRequestEvent Event = "Merge Request Hook"
 )
 
@@ -29,20 +29,20 @@ func NewGitlabProvider(secret string) (*GitlabProvider, error) {
 }
 
 func (p *GitlabProvider) GetProviderName() string {
-	return GitlabName;
+	return GitlabName
 }
 
 // Not adding XGitlabToken will make token validation optional
 func (p *GitlabProvider) GetHeaderKeys() []string {
-	if (len(strings.TrimSpace(p.secret)) > 0) {
-		return []string {
+	if len(strings.TrimSpace(p.secret)) > 0 {
+		return []string{
 			XGitlabEvent,
 			XGitlabToken,
 			ContentTypeHeader,
 		}
 	}
 
-	return []string {
+	return []string{
 		XGitlabEvent,
 		ContentTypeHeader,
 	}
@@ -56,7 +56,7 @@ func (p *GitlabProvider) Validate(hook Hook) bool {
 	if len(token) <= 0 {
 		return false
 	}
-	
+
 	return strings.TrimSpace(token) == strings.TrimSpace(p.secret)
 }
 
