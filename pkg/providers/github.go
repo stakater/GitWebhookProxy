@@ -88,6 +88,7 @@ func (p *GithubProvider) GetCommitter(hook Hook) string {
 		return pushPayloadData.Sender.Login
 	case GithubPullRequestEvent:
 		if err := json.Unmarshal(hook.Payload, &pullRequestPayloadData); err != nil {
+			log.Printf("Github payload unmarshaling failed for Pull Request event: %v", err)
 			return ""
 		}
 		return pullRequestPayloadData.Sender.Login
