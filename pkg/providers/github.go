@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	GithubPushEvent Event = "push"
-	GithubPullRequestEvent Event = "pull_request"
+	GithubPushEvent         Event = "push"
+	GithubPullRequestEvent  Event = "pull_request"
+	GithubIssueCommentEvent Event = "issue_comment"
 )
 
 // Header constants
@@ -24,7 +25,7 @@ const (
 const (
 	SignaturePrefix = "sha1="
 	SignatureLength = 45
-	GithubName = "github"
+	GithubName      = "github"
 )
 
 type GithubProvider struct {
@@ -38,8 +39,8 @@ func NewGithubProvider(secret string) (*GithubProvider, error) {
 }
 
 func (p *GithubProvider) GetHeaderKeys() []string {
-	if (len(strings.TrimSpace(p.secret)) > 0) {
-		return []string {
+	if len(strings.TrimSpace(p.secret)) > 0 {
+		return []string{
 			XHubSignature,
 			XGitHubDelivery,
 			XGitHubEvent,
@@ -68,28 +69,37 @@ func (p *GithubProvider) Validate(hook Hook) bool {
 }
 
 func (p *GithubProvider) GetProviderName() string {
-	return GithubName;
+	return GithubName
 }
 
 func (p *GithubProvider) GetCommitter(hook Hook) string {
+	eventType := Event(hook.Headers[XGitHubEvent])
 	var pushPayloadData GithubPushPayload
 	var pullRequestPayloadData GithubPullRequestPayload
-	if err := json.Unmarshal(hook.Payload, &pushPayloadData); err != nil {
-		log.Printf("Github payload unmarshaling failed for Push event: %v", err)
-		log.Printf("Now trying to unmarshal for pull request event")
-		if err = json.Unmarshal(hook.Payload, &pullRequestPayloadData); err != nil {
-			log.Printf("Github payload unmarshaling failed for pull request event: %v", err)
-			return ""
-		}
-	}
+	var issueCommentPayloadData GithubIssueCommentPayload
 
-	eventType := Event(hook.Headers[XGitHubEvent])
+	log.Printf("Received event type: %v", eventType)
 	switch eventType {
 	case GithubPushEvent:
+		if err := json.Unmarshal(hook.Payload, &pushPayloadData); err != nil {
+			log.Printf("Github payload unmarshaling failed for Push event: %v", err)
+			return ""
+		}
 		return pushPayloadData.Sender.Login
 	case GithubPullRequestEvent:
+		if err := json.Unmarshal(hook.Payload, &pullRequestPayloadData); err != nil {
+			log.Printf("Github payload unmarshaling failed for Pull Request event: %v", err)
+			return ""
+		}
 		return pullRequestPayloadData.Sender.Login
+	case GithubIssueCommentEvent:
+		if err := json.Unmarshal(hook.Payload, &issueCommentPayloadData); err != nil {
+			log.Printf("Github payload unmarshaling failed for issue comment event: %v", err)
+			return ""
+		}
+		return issueCommentPayloadData.Comment.User.Login
 	}
+
 	log.Printf("Event type is not supported: %v", eventType)
 	return ""
 }
