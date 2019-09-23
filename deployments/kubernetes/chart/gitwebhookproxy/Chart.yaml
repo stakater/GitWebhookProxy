@@ -3,7 +3,7 @@
 apiVersion: v1
 name: gitwebhookproxy
 description: GitWebhookProxy chart that runs on kubernetes
-version: v0.2.68
+version: v0.2.69
 keywords:
   - GitWebhookProxy
   - kubernetes
