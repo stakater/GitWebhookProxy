@@ -44,8 +44,27 @@ type GithubPullRequestPayload struct {
 		ClosedAt          time.Time `json:"closed_at"`
 		MergedAt          time.Time `json:"merged_at"`
 		MergeCommitSha    string    `json:"merge_commit_sha"`
-		RequestedTeams    []string  `json:"requested_teams"`
-		Labels            []string  `json:"labels"`
+		RequestedTeams []struct {
+			Name            string `json:"body"`
+			ID              int64  `json:"id"`
+			NodeID          string `json:"node_id"`
+			Slug            string `json:"slug"`
+			Description     string `json:"description"`
+			Privacy         string `json:"privacy"`
+			URL             string `json:"url"`
+			HTMLURL         string `json:"html_url"`
+			MembersURL      string `json:"members_url"`
+			RepositoriesURL string `json:"repositories_url"`
+			Permission      string `json:"permission"`
+		} `json:"requested_teams"`
+		Labels []struct {
+			ID      int64  `json:"id"`
+			NodeID  string `json:"node_id"`
+			URL     string `json:"url"`
+			Name    string `json:"name"`
+			Color   string `json:"color"`
+			Default bool   `json:"default"`
+		} `json:"labels"`
 		CommitsURL        string    `json:"commits_url"`
 		ReviewCommentsURL string    `json:"review_comments_url"`
 		ReviewCommentURL  string    `json:"review_comment_url"`
