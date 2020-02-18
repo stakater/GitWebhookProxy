@@ -22,8 +22,7 @@ ADD . "$GOPATH/src/github.com/stakater/GitWebhookProxy"
 
 RUN cd "$GOPATH/src/github.com/stakater/GitWebhookProxy" && \
     go mod download && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 packr2 build -a --installsuffix cgo --ldflags="-s" -o /GitWebhookProxy && \
-    packr2 clean
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --installsuffix cgo --ldflags="-s" -o /GitWebhookProxy
 
 COPY build/package/Dockerfile.run /
 
