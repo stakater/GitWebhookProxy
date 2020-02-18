@@ -1,15 +1,15 @@
 ---
 # Source: gitwebhookproxy/templates/deployment.yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.70
-    chart: "gitwebhookproxy-v0.2.70"
-    release: "RELEASE-NAME"
+    version: v0.2.71
+    chart: "gitwebhookproxy-v0.2.71"
+    release: "gitwebhookproxy"
     heritage: "Tiller"
   annotations:
     configmap.reloader.stakater.com/reload: gitwebhookproxy
@@ -66,7 +66,7 @@ spec:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:v0.2.70"
+        image: "stakater/gitwebhookproxy:v0.2.71"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
         livenessProbe:
@@ -103,9 +103,9 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.70
-    chart: "gitwebhookproxy-v0.2.70"
-    release: "RELEASE-NAME"
+    version: v0.2.71
+    chart: "gitwebhookproxy-v0.2.71"
+    release: "gitwebhookproxy"
     heritage: "Tiller"
   name: gitwebhookproxy
 data:
@@ -119,9 +119,9 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.70
-    chart: "gitwebhookproxy-v0.2.70"
-    release: "RELEASE-NAME"
+    version: v0.2.71
+    chart: "gitwebhookproxy-v0.2.71"
+    release: "gitwebhookproxy"
     heritage: "Tiller"
     expose: "true"
     
@@ -147,9 +147,9 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.70
-    chart: "gitwebhookproxy-v0.2.70"
-    release: "RELEASE-NAME"
+    version: v0.2.71
+    chart: "gitwebhookproxy-v0.2.71"
+    release: "gitwebhookproxy"
     heritage: "Tiller"
   name: gitwebhookproxy
 data:
