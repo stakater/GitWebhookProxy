@@ -83,20 +83,26 @@ func (p *Proxy) redirect(hook *providers.Hook, redirectURL string) (*http.Respon
 	if hook == nil {
 		return nil, errors.New("Cannot redirect with nil Hook")
 	}
+	log.Printf("Hook not nil")
 
 	// Parse url to check validity
 	url, err := url.Parse(redirectURL)
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("Parse url to check validity")
 
 	// Assign default scheme as http if not specified
 	if url.Scheme == "" {
 		url.Scheme = "http"
 	}
+	log.Printf("url.Scheme %s", url.Scheme)
+
 
 	// Create Redirect request
 	req, err := http.NewRequest(hook.RequestMethod, url.String(), bytes.NewBuffer(hook.Payload))
+
+    log.Printf("Create redirect request %s, urlstring %s", hook.RequestMethod, url.String())
 
 	if err != nil {
 		return nil, err
@@ -106,6 +112,8 @@ func (p *Proxy) redirect(hook *providers.Hook, redirectURL string) (*http.Respon
 	for key, value := range hook.Headers {
 		req.Header.Add(key, value)
 	}
+
+	log.Printf("Set Headers from hook")
 
 	return httpClient.Do(req)
 
