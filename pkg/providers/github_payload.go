@@ -103,7 +103,7 @@ type GithubPushPayload struct {
 		NotificationsURL string    `json:"notifications_url"`
 		LabelsURL        string    `json:"labels_url"`
 		ReleasesURL      string    `json:"releases_url"`
-		CreatedAt        time.Time `json:"created_at"`
+		CreatedAt        int64      `json:"created_at"`
 		UpdatedAt        time.Time `json:"updated_at"`
 		PushedAt         int64     `json:"pushed_at"`
 		GitURL           string    `json:"git_url"`
