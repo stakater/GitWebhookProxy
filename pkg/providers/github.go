@@ -108,7 +108,7 @@ func (p *GithubProvider) GetCommitter(hook Hook) string {
 // the hash computed by GitHub sent as a header
 func IsValidPayload(secret, headerHash string, payload []byte) bool {
 	hash := HashPayload(secret, payload)
-	log.Printf("Calculated Hash: %s", hash)
+	log.Printf("Calculated Hash: %s\n%s\n%s", hash, secret, payload)
 	return hmac.Equal(
 		[]byte(hash),
 		[]byte(headerHash),
