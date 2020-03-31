@@ -74,9 +74,11 @@ func (p *Proxy) isAllowedUser(committer string) bool {
 		if exists, _ := utils.InArray(p.allowedUsers, committer); exists {
 			return true
 		}
+
+		return false
 	}
 
-	return false
+	return true
 }
 
 func (p *Proxy) redirect(hook *providers.Hook, redirectURL string) (*http.Response, error) {
@@ -142,7 +144,7 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 
 	committer := provider.GetCommitter(*hook)
 	log.Printf("Incoming request from user: %s", committer)
-	if p.isIgnoredUser(committer) && (!p.isAllowedUser(committer)) {
+	if p.isIgnoredUser(committer) || (!p.isAllowedUser(committer)) {
 		log.Printf("Ignoring request for user: %s", committer)
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(fmt.Sprintf("Ignoring request for user: %s", committer)))
