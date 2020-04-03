@@ -9,8 +9,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.72
-    chart: "gitwebhookproxy-v0.2.72"
+    version: v0.2.73
+    chart: "gitwebhookproxy-v0.2.73"
     release: "gitwebhookproxy"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -30,8 +30,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.72
-    chart: "gitwebhookproxy-v0.2.72"
+    version: v0.2.73
+    chart: "gitwebhookproxy-v0.2.73"
     release: "gitwebhookproxy"
     heritage: "Tiller"
   annotations:
@@ -89,7 +89,7 @@ spec:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:v0.2.72"
+        image: "stakater/gitwebhookproxy:v0.2.73"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
         livenessProbe:
@@ -119,6 +119,7 @@ spec:
 
 ---
 # Source: gitwebhookproxy/templates/secret.yaml
+
 apiVersion: v1
 kind: Secret
 metadata:
@@ -126,13 +127,14 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.72
-    chart: "gitwebhookproxy-v0.2.72"
+    version: v0.2.73
+    chart: "gitwebhookproxy-v0.2.73"
     release: "gitwebhookproxy"
     heritage: "Tiller"
   name: gitwebhookproxy
 data:
     secret: ""
+
 ---
 # Source: gitwebhookproxy/templates/service.yaml
 apiVersion: v1
@@ -142,8 +144,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.72
-    chart: "gitwebhookproxy-v0.2.72"
+    version: v0.2.73
+    chart: "gitwebhookproxy-v0.2.73"
     release: "gitwebhookproxy"
     heritage: "Tiller"
     expose: "true"
