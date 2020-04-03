@@ -1037,7 +1037,7 @@ func TestProxy_isAllowedUser(t *testing.T) {
 			args: args{
 				committer: "user",
 			},
-			want: false,
+			want: true,
 		},
 		{
 			name: "TestIsAllowedUserWithValidList",
