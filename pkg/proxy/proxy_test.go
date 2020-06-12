@@ -604,6 +604,20 @@ func TestProxy_proxyRequest(t *testing.T) {
 			wantStatusCode: http.StatusMethodNotAllowed,
 		},
 		{
+			name: "TestProxyRequestShouldNotParseJsonWithoutAllowedOrIgnoredUsersConfigured",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURLSecure,
+				allowedPaths: []string{},
+				secret:       "",
+			},
+			args: args{
+				request: createGitlabRequestWithPayload(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, []byte("{}")),
+			},
+			wantStatusCode: http.StatusOK,
+		},
+		{
 			name: "TestProxyRequestWithInvalidHttpMethod",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
