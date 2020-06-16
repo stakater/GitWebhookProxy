@@ -61,6 +61,7 @@ spec:
             {{- else }}
               name: {{ template "gitwebhookproxy.name" . }}
             {{- end }}
+        {{- if .Values.gitWebhookProxy.config.ignoredUsers }}
         - name: GWP_IGNOREDUSERS
           valueFrom:
             configMapKeyRef:
@@ -70,6 +71,8 @@ spec:
             {{- else }}
               name: {{ template "gitwebhookproxy.name" . }}
             {{- end }}
+        {{- end }}
+        {{- if .Values.gitWebhookProxy.config.allowedUsers }}
         - name: GWP_ALLOWEDUSERS
           valueFrom:
             configMapKeyRef:
@@ -79,6 +82,7 @@ spec:
             {{- else }}
               name: {{ template "gitwebhookproxy.name" . }}
             {{- end }}
+        {{- end }}
         - name: GWP_SECRET
           valueFrom:
             secretKeyRef:
