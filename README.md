@@ -140,8 +140,8 @@ File a GitHub [issue](https://github.com/stakater/GitWebhookProxy/issues), or se
 ### Talk to us on Slack
 Join and talk to us on the #tools-gwp channel for discussing about GitWebhookProxy
 
-[![Join Slack](https://stakater.github.io/README/stakater-join-slack-btn.png)](https://stakater-slack.herokuapp.com/)
-[![Chat](https://stakater.github.io/README/stakater-chat-btn.png)](https://stakater.slack.com/messages/CAQ5A4HGD/)
+[![Join Slack](https://stakater.github.io/README/stakater-join-slack-btn.png)](https://slack.stakater.com/)
+[![Chat](https://stakater.github.io/README/stakater-chat-btn.png)](https://stakater-community.slack.com/messages/CAQ5A4HGD)
 
 ## Contributing
 
