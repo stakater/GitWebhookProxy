@@ -30,4 +30,7 @@ spec:
   tls:
   - hosts:
     - {{ .Values.gitWebhookProxy.ingress.host }}
+  {{- if .Values.gitWebhookProxy.ingress.tlsSecretName }}
+    secretName: {{ .Values.gitWebhookProxy.ingress.tlsSecretName }}
+  {{- end }}
 {{- end }}

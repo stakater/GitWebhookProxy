@@ -40,5 +40,6 @@ gitWebhookProxy:
       kubernetes.io/ingress.class: external-ingress
       monitor.stakater.com/enabled: "true"
     host: gitwebhookproxy.tools.stackator.com
+    tlsSecretName: ""
     serviceName: gitwebhookproxy
     servicePort: 80
