@@ -131,6 +131,12 @@ jenkinswebhookproxy:
     restart: on-failure
 ```
 
+## Troubleshooting
+### 405 Method Not Allowed with Jenkins & github plugin
+If you get the following error when setting up webhooks for your jobs in Jenkins, make sure you have the trailing `/` in the webhook configured in Jenkins. 
+```
+Error Redirecting '/github-webhook' to upstream', Upstream Redirect Status: 405 Method Not Allowed
+```
 
 ## Help
 
