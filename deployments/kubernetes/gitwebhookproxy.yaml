@@ -1,4 +1,27 @@
 ---
+# Source: gitwebhookproxy/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    fabric8.io/target-platform: kubernetes
+  labels:
+    app: gitwebhookproxy
+    group: com.stakater.platform
+    provider: stakater
+    version: v0.2.77
+    chart: "gitwebhookproxy-v0.2.77"
+    release: "gitwebhookproxy"
+    heritage: "Tiller"
+  name: gitwebhookproxy
+data:
+    provider: github
+    upstreamURL: https://jenkins.tools.stackator.com
+    allowedPaths: /github-webhook,/project
+    ignoredUsers: stakater-user
+    allowedUsers: myuser
+
+---
 # Source: gitwebhookproxy/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -7,8 +30,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.71
-    chart: "gitwebhookproxy-v0.2.71"
+    version: v0.2.77
+    chart: "gitwebhookproxy-v0.2.77"
     release: "gitwebhookproxy"
     heritage: "Tiller"
   annotations:
@@ -66,7 +89,7 @@ spec:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:v0.2.71"
+        image: "stakater/gitwebhookproxy:v0.2.77"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
         livenessProbe:
@@ -96,6 +119,7 @@ spec:
 
 ---
 # Source: gitwebhookproxy/templates/secret.yaml
+
 apiVersion: v1
 kind: Secret
 metadata:
@@ -103,13 +127,14 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.71
-    chart: "gitwebhookproxy-v0.2.71"
+    version: v0.2.77
+    chart: "gitwebhookproxy-v0.2.77"
     release: "gitwebhookproxy"
     heritage: "Tiller"
   name: gitwebhookproxy
 data:
     secret: ""
+
 ---
 # Source: gitwebhookproxy/templates/service.yaml
 apiVersion: v1
@@ -119,8 +144,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.71
-    chart: "gitwebhookproxy-v0.2.71"
+    version: v0.2.77
+    chart: "gitwebhookproxy-v0.2.77"
     release: "gitwebhookproxy"
     heritage: "Tiller"
     expose: "true"
@@ -136,26 +161,3 @@ spec:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
----
-# Source: gitwebhookproxy/templates/configmap.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  annotations:
-    fabric8.io/target-platform: kubernetes
-  labels:
-    app: gitwebhookproxy
-    group: com.stakater.platform
-    provider: stakater
-    version: v0.2.71
-    chart: "gitwebhookproxy-v0.2.71"
-    release: "gitwebhookproxy"
-    heritage: "Tiller"
-  name: gitwebhookproxy
-data:
-    provider: github
-    upstreamURL: https://jenkins.tools.stackator.com
-    allowedPaths: /github-webhook,/project
-    ignoredUsers: stakater-user
-    allowedUsers: myuser
-

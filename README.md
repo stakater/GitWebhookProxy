@@ -131,6 +131,12 @@ jenkinswebhookproxy:
     restart: on-failure
 ```
 
+## Troubleshooting
+### 405 Method Not Allowed with Jenkins & github plugin
+If you get the following error when setting up webhooks for your jobs in Jenkins, make sure you have the trailing `/` in the webhook configured in Jenkins. 
+```
+Error Redirecting '/github-webhook' to upstream', Upstream Redirect Status: 405 Method Not Allowed
+```
 
 ## Help
 
@@ -140,8 +146,8 @@ File a GitHub [issue](https://github.com/stakater/GitWebhookProxy/issues), or se
 ### Talk to us on Slack
 Join and talk to us on the #tools-gwp channel for discussing about GitWebhookProxy
 
-[![Join Slack](https://stakater.github.io/README/stakater-join-slack-btn.png)](https://stakater-slack.herokuapp.com/)
-[![Chat](https://stakater.github.io/README/stakater-chat-btn.png)](https://stakater.slack.com/messages/CAQ5A4HGD/)
+[![Join Slack](https://stakater.github.io/README/stakater-join-slack-btn.png)](https://slack.stakater.com/)
+[![Chat](https://stakater.github.io/README/stakater-chat-btn.png)](https://stakater-community.slack.com/messages/CAQ5A4HGD)
 
 ## Contributing
 

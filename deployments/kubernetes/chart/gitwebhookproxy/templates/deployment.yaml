@@ -83,7 +83,9 @@ spec:
           valueFrom:
             secretKeyRef:
               key: secret
-            {{- if .Values.gitWebhookProxy.useCustomName }}
+            {{- if .Values.gitWebhookProxy.existingSecretName }}
+              name: {{ .Values.gitWebhookProxy.existingSecretName }}
+            {{- else if .Values.gitWebhookProxy.useCustomName }}
               name: {{ .Values.gitWebhookProxy.customName }}
             {{- else }}
               name: {{ template "gitwebhookproxy.name" . }}

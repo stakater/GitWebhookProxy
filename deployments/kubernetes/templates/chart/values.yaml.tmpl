@@ -7,6 +7,8 @@ gitWebhookProxy:
   useCustomName: false
   customName: gitlabwebhookproxy
   namespace: default
+  # name of existing secret containing secret for hashes
+  existingSecretName: ""
   labels:
     provider: stakater
     group: com.stakater.platform
@@ -38,5 +40,6 @@ gitWebhookProxy:
       kubernetes.io/ingress.class: external-ingress
       monitor.stakater.com/enabled: "true"
     host: gitwebhookproxy.tools.stackator.com
+    tlsSecretName: ""
     serviceName: gitwebhookproxy
     servicePort: 80
