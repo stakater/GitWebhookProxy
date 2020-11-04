@@ -33,6 +33,12 @@ gitWebhookProxy:
         port: 80
         protocol: TCP
         targetPort: 8080
+  securityContext:
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+  podSecurityContext:
+    runAsUser: 1001
+    runAsNonRoot: true
   ingress:
     enabled: false
     annotations:

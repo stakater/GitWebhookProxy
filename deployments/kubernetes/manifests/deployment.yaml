@@ -30,6 +30,10 @@ spec:
         group: com.stakater.platform
         provider: stakater
     spec:
+      securityContext: 
+        runAsNonRoot: true
+        runAsUser: 1001
+        
       containers:
       - env:
         - name: KUBERNETES_NAMESPACE
@@ -68,6 +72,10 @@ spec:
               name: gitwebhookproxy
         image: "stakater/gitwebhookproxy:v0.2.79"
         imagePullPolicy: IfNotPresent
+        securityContext: 
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          
         name: gitwebhookproxy
         livenessProbe:
           failureThreshold: 5
