@@ -19,9 +19,5 @@ data:
     {{- with .Values.gitWebhookProxy.config.allowedPaths }}
     allowedPaths: {{ . }}
     {{- end }}
-    {{- with .Values.gitWebhookProxy.config.ignoredUsers }}
-    ignoredUsers: {{ . }}
-    {{- end }}
-    {{- with .Values.gitWebhookProxy.config.allowedUsers }}
-    allowedUsers: {{ . }}
-    {{- end }}
+    ignoredUsers: {{ .Values.gitWebhookProxy.config.ignoredUsers | default "" | quote }}
+    allowedUsers: {{ .Values.gitWebhookProxy.config.allowedUsers | default "" | quote }}

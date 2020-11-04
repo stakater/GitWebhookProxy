@@ -28,6 +28,9 @@ spec:
       labels:
 {{ include "gitwebhookproxy.labels.selector" . | indent 8 }}
     spec:
+      {{- with .Values.gitWebhookProxy.podSecurityContext }}
+      securityContext: {{ . | toYaml | nindent 8 }}
+      {{- end }}
       containers:
       - env:
         - name: KUBERNETES_NAMESPACE
@@ -92,6 +95,9 @@ spec:
             {{- end }}
         image: "{{ .Values.gitWebhookProxy.image.name }}:{{ .Values.gitWebhookProxy.image.tag }}"
         imagePullPolicy: {{ .Values.gitWebhookProxy.image.pullPolicy }}
+        {{- with .Values.gitWebhookProxy.securityContext }}
+        securityContext: {{ . | toYaml | nindent 10 }}
+        {{- end }}
       {{- if .Values.gitWebhookProxy.useCustomName }}
         name: {{ .Values.gitWebhookProxy.customName }}
       {{- else }}
