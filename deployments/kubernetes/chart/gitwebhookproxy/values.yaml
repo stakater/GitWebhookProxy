@@ -12,10 +12,10 @@ gitWebhookProxy:
   labels:
     provider: stakater
     group: com.stakater.platform
-    version: v0.2.78
+    version: v0.2.79
   image:
     name: stakater/gitwebhookproxy
-    tag: "v0.2.78"
+    tag: "v0.2.79"
     pullPolicy: IfNotPresent
   config:
     provider: github
@@ -33,12 +33,6 @@ gitWebhookProxy:
         port: 80
         protocol: TCP
         targetPort: 8080
-  securityContext:
-    readOnlyRootFilesystem: true
-    allowPrivilegeEscalation: false
-  podSecurityContext:
-    runAsUser: 1001
-    runAsNonRoot: true
   ingress:
     enabled: false
     annotations:

@@ -9,8 +9,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.78
-    chart: "gitwebhookproxy-v0.2.78"
+    version: v0.2.79
+    chart: "gitwebhookproxy-v0.2.79"
     release: "gitwebhookproxy"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -18,8 +18,8 @@ data:
     provider: github
     upstreamURL: https://jenkins.tools.stackator.com
     allowedPaths: /github-webhook,/project
-    ignoredUsers: stakater-user
-    allowedUsers: myuser
+    ignoredUsers: "stakater-user"
+    allowedUsers: "myuser"
 
 ---
 # Source: gitwebhookproxy/templates/deployment.yaml
@@ -30,8 +30,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.78
-    chart: "gitwebhookproxy-v0.2.78"
+    version: v0.2.79
+    chart: "gitwebhookproxy-v0.2.79"
     release: "gitwebhookproxy"
     heritage: "Tiller"
   annotations:
@@ -89,7 +89,7 @@ spec:
             secretKeyRef:
               key: secret
               name: gitwebhookproxy
-        image: "stakater/gitwebhookproxy:v0.2.78"
+        image: "stakater/gitwebhookproxy:v0.2.79"
         imagePullPolicy: IfNotPresent
         name: gitwebhookproxy
         livenessProbe:
@@ -127,8 +127,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.78
-    chart: "gitwebhookproxy-v0.2.78"
+    version: v0.2.79
+    chart: "gitwebhookproxy-v0.2.79"
     release: "gitwebhookproxy"
     heritage: "Tiller"
   name: gitwebhookproxy
@@ -144,8 +144,8 @@ metadata:
     app: gitwebhookproxy
     group: com.stakater.platform
     provider: stakater
-    version: v0.2.78
-    chart: "gitwebhookproxy-v0.2.78"
+    version: v0.2.79
+    chart: "gitwebhookproxy-v0.2.79"
     release: "gitwebhookproxy"
     heritage: "Tiller"
     expose: "true"
