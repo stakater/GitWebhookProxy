@@ -20,7 +20,6 @@ metadata:
 {{- else }}
   name: {{ template "gitwebhookproxy.name" . }}
 {{- end }}
-  namespace: {{ .Values.gitWebhookProxy.namespace }}
 spec:
   rules:
   - host: {{ .Values.gitWebhookProxy.ingress.host }}
