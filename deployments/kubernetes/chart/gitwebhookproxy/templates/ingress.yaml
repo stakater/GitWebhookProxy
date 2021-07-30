@@ -1,5 +1,11 @@
 {{- if .Values.gitWebhookProxy.ingress.enabled }}
+{{- if semverCompare "<1.15-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: extensions/v1beta1
+{{- else if and (semverCompare ">=1.15-0" .Capabilities.KubeVersion.GitVersion) (semverCompare "<1.19-0" .Capabilities.KubeVersion.GitVersion) -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: networking.k8s.io/v1
+{{- end }}
 kind: Ingress
 metadata:
 {{- if .Values.gitWebhookProxy.ingress.annotations }}
@@ -14,11 +20,13 @@ metadata:
 {{- else }}
   name: {{ template "gitwebhookproxy.name" . }}
 {{- end }}
+  namespace: {{ .Values.gitWebhookProxy.namespace }}
 spec:
   rules:
   - host: {{ .Values.gitWebhookProxy.ingress.host }}
     http:
       paths:
+      {{- if semverCompare "<1.19-0" .Capabilities.KubeVersion.GitVersion -}} 
       - backend:
         {{- if .Values.gitWebhookProxy.useCustomName }}
           serviceName: {{ .Values.gitWebhookProxy.customName }}
@@ -26,6 +34,18 @@ spec:
           serviceName: {{ template "gitwebhookproxy.name" . }}
         {{- end }}
           servicePort: 80
+      {{- else -}}
+      - pathType: ImplementationSpecific
+        backend:
+          service:
+          {{- if .Values.gitWebhookProxy.useCustomName }}
+            name: {{ .Values.gitWebhookProxy.customName }}
+          {{- else }}
+            name: {{ template "gitwebhookproxy.name" . }}
+          {{- end }}
+            port:
+              number: 80
+      {{- end }}
   tls:
   - hosts:
     - {{ .Values.gitWebhookProxy.ingress.host }}
