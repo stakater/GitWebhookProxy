@@ -1,0 +1,12 @@
+port: "8080"
+proxies:
+  - upstreamURL : "jenkins.com"
+    allowedPaths: ["/blah","/no"]
+    frontEndURL: "/jenkins"
+    secret: $SECRET
+    provider: "gitlab"
+  - upstreamURL : "spinnaker.com"
+    allowedPaths: "/qwer"
+    frontEndURL: "/spinnaker"
+    secret: "secret"
+    provider: "gitlab"
