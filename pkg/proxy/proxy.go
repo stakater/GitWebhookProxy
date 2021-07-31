@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/stakater/GitWebhookProxy/pkg/parser"
-	"github.com/stakater/GitWebhookProxy/pkg/providers"
-	"github.com/stakater/GitWebhookProxy/pkg/utils"
+	"github.com/rmenn/GitWebhookProxy/pkg/parser"
+	"github.com/rmenn/GitWebhookProxy/pkg/providers"
+	"github.com/rmenn/GitWebhookProxy/pkg/utils"
 )
 
 var (
@@ -29,6 +29,7 @@ var (
 )
 
 type Proxy struct {
+	prefixURI    string
 	provider     string
 	upstreamURL  string
 	allowedPaths []string
@@ -36,6 +37,9 @@ type Proxy struct {
 	ignoredUsers []string
 	allowedUsers []string
 }
+
+type Proxies []Proxy
+type RouteConfig map[string]Proxy
 
 func (p *Proxy) isPathAllowed(path string) bool {
 	// All paths allowed
@@ -115,7 +119,6 @@ func (p *Proxy) redirect(hook *providers.Hook, redirectURL string) (*http.Respon
 
 func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	redirectURL := p.upstreamURL + r.URL.Path
-
 	if r.URL.RawQuery != "" {
 		redirectURL += "?" + r.URL.RawQuery
 	}
@@ -185,11 +188,12 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 }
 
 // Health Check Endpoint
-func (p *Proxy) health(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+func (p *RouteConfig) health(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	w.WriteHeader(200)
 	w.Write([]byte("I'm Healthy and I know it! ;) "))
 }
 
+/*
 // Run starts Proxy server
 func (p *Proxy) Run(listenAddress string) error {
 	if len(strings.TrimSpace(listenAddress)) == 0 {
@@ -203,8 +207,9 @@ func (p *Proxy) Run(listenAddress string) error {
 	log.Printf("Listening at: %s", listenAddress)
 	return http.ListenAndServe(listenAddress, router)
 }
+*/
 
-func NewProxy(upstreamURL string, allowedPaths []string,
+func NewProxy(prefixURI, upstreamURL string, allowedPaths []string,
 	provider string, secret string, ignoredUsers []string) (*Proxy, error) {
 	// Validate Params
 	if len(strings.TrimSpace(upstreamURL)) == 0 {
@@ -218,10 +223,45 @@ func NewProxy(upstreamURL string, allowedPaths []string,
 	}
 
 	return &Proxy{
+		prefixURI:    prefixURI,
 		provider:     provider,
 		upstreamURL:  upstreamURL,
 		allowedPaths: allowedPaths,
 		secret:       secret,
 		ignoredUsers: ignoredUsers,
 	}, nil
+}
+
+func NewProxyRouter(ps []*Proxy) *RouteConfig {
+	var routes = make(RouteConfig)
+	for _, r := range ps {
+		tPre := strings.TrimPrefix(r.prefixURI, "/")
+		for _, aPath := range r.allowedPaths {
+			key := tPre + aPath
+			log.Printf("configuring proxy upstream %s path %s", r.upstreamURL, key)
+			routes[key] = *r
+		}
+	}
+	return &routes
+}
+
+func (rc RouteConfig) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	proute := strings.Split(r.URL.Path, "/")[1]
+	uroute := strings.TrimPrefix(r.URL.Path, "/"+proute)
+	key := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/"), "/")
+	p, pathPresent := rc[key]
+	if !pathPresent {
+		log.Printf("No path found in proxy list: '%s'", r.URL.Path)
+		http.Error(w, "Not allowed: '"+r.URL.Path+"'", http.StatusForbidden)
+		return
+	}
+	r.URL.Path = uroute
+	p.proxyRequest(w, r, params)
+}
+
+func (r *RouteConfig) Run(port string) error {
+	router := httprouter.New()
+	router.POST("/*path", r.proxyRequest)
+	router.GET("/healthz", r.health)
+	return http.ListenAndServe(port, router)
 }

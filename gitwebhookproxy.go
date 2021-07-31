@@ -1,68 +1,44 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
+	//"os"
 	"strings"
 
-	"github.com/namsral/flag"
-	"github.com/stakater/GitWebhookProxy/pkg/proxy"
+	config "github.com/rmenn/GitWebhookProxy/conf"
+	"github.com/rmenn/GitWebhookProxy/pkg/proxy"
 )
 
-var (
-	flagSet       = flag.NewFlagSetWithEnvPrefix(os.Args[0], "GWP", 0)
-	listenAddress = flagSet.String("listen", ":8080", "Address on which the proxy listens.")
-	upstreamURL   = flagSet.String("upstreamURL", "", "URL to which the proxy requests will be forwarded (required)")
-	secret        = flagSet.String("secret", "", "Secret of the Webhook API. If not set validation is not made.")
-	provider      = flagSet.String("provider", "github", "Git Provider which generates the Webhook")
-	allowedPaths  = flagSet.String("allowedPaths", "", "Comma-Separated String List of allowed paths")
-	ignoredUsers  = flagSet.String("ignoredUsers", "", "Comma-Separated String List of users to ignore while proxying Webhook request")
-	allowedUsers  = flagSet.String("allowedUser", "", "Comma-Separated String List of users to allow while proxying Webhook request")
-)
-
-func validateRequiredFlags() {
+func validateRequiredFlags(upstreamURL, frontEndURL string) bool {
 	isValid := true
-	if len(strings.TrimSpace(*upstreamURL)) == 0 {
+	if len(strings.TrimSpace(upstreamURL)) == 0 {
 		log.Println("Required flag 'upstreamURL' not specified")
 		isValid = false
 	}
-
-	if !isValid {
-		fmt.Println("")
-		//TODO: Usage not working as expected in flagSet
-		flagSet.Usage()
-		fmt.Println("")
-
-		panic("See Flag Usage")
+	if len(strings.TrimSpace(frontEndURL)) == 0 {
+		log.Println("Required Config 'frontEndURL' is not specified")
+		isValid = false
 	}
+	return isValid
 }
 
 func main() {
-	flagSet.Parse(os.Args[1:])
-	validateRequiredFlags()
-	lowerProvider := strings.ToLower(*provider)
-
-	// Split Comma-Separated list into an array
-	allowedPathsArray := []string{}
-	if len(*allowedPaths) > 0 {
-		allowedPathsArray = strings.Split(*allowedPaths, ",")
+	port, ps := config.Init()
+	var Proxies []*proxy.Proxy
+	for _, p := range ps {
+		ok := validateRequiredFlags(p.UpstreamURL, p.FrontEndURL)
+		if !ok {
+			log.Fatal("required config not present")
+		}
+		pr, err := proxy.NewProxy(p.FrontEndURL, p.UpstreamURL, p.AllowedPaths, p.Provider,
+			p.Secret, p.IgnoredUsers)
+		if err != nil {
+			log.Fatal("unable to configure proxy")
+		}
+		Proxies = append(Proxies, pr)
 	}
-
-	// Split Comma-Separated list into an array
-	ignoredUsersArray := []string{}
-	if len(*ignoredUsers) > 0 {
-		ignoredUsersArray = strings.Split(*ignoredUsers, ",")
-	}
-
-	log.Printf("Stakater Git WebHook Proxy started with provider '%s'\n", lowerProvider)
-	p, err := proxy.NewProxy(*upstreamURL, allowedPathsArray, lowerProvider, *secret, ignoredUsersArray)
-	if err != nil {
+	r := proxy.NewProxyRouter(Proxies)
+	if err := r.Run(":" + port); err != nil {
 		log.Fatal(err)
 	}
-
-	if err := p.Run(*listenAddress); err != nil {
-		log.Fatal(err)
-	}
-
 }
