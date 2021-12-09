@@ -6,7 +6,6 @@ kubernetes:
 gitWebhookProxy:
   useCustomName: false
   customName: gitlabwebhookproxy
-  namespace: default
   # name of existing secret containing secret for hashes
   existingSecretName: ""
   labels:
