@@ -18,7 +18,7 @@ metadata:
   name: {{ template "gitwebhookproxy.name" . }}
 {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.gitWebhookProxy.replicas }}
   revisionHistoryLimit: 2
   selector:
     matchLabels:
