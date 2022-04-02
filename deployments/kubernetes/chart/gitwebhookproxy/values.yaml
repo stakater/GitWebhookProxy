@@ -4,6 +4,7 @@ kubernetes:
   host: https://kubernetes.default
 
 gitWebhookProxy:
+  replicas: 1
   useCustomName: false
   customName: gitlabwebhookproxy
   # name of existing secret containing secret for hashes
