@@ -20,6 +20,7 @@ import (
 
 var (
 	transport = &http.Transport{
+		Proxy:           http.ProxyFromEnvironment,
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	httpClient = &http.Client{
