@@ -1,5 +1,5 @@
 {{- if .Values.gitWebhookProxy.ingress.enabled }}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
 {{- if .Values.gitWebhookProxy.ingress.annotations }}
@@ -19,13 +19,18 @@ spec:
   - host: {{ .Values.gitWebhookProxy.ingress.host }}
     http:
       paths:
-      - backend:
+      - pathType: ImplementationSpecific
+        backend:
         {{- if .Values.gitWebhookProxy.useCustomName }}
-          serviceName: {{ .Values.gitWebhookProxy.customName }}
+          service:
+            name: {{ .Values.gitWebhookProxy.customName }}
+            port:
+              number: {{ .Values.gitWebhookProxy.servicePort }}
         {{- else }}
-          serviceName: {{ template "gitwebhookproxy.name" . }}
-        {{- end }}
-          servicePort: 80
+          service:
+            name: {{ template "gitwebhookproxy.name" . }}
+            port:
+              number: {{ .Values.gitWebhookProxy.servicePort }}
   tls:
   - hosts:
     - {{ .Values.gitWebhookProxy.ingress.host }}
