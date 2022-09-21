@@ -127,7 +127,7 @@ For docker compose, the syntax is a bit different
 ```yaml
 jenkinswebhookproxy: 
     image: 'stakater/gitwebhookproxy:latest'
-    command: ["-listen", ":8080", "-secret", "test", "-upstreamURL", "jenkins.example.com, "-allowedPaths", "/github-webhook,/ghprbhook"]
+    command: ["-listen", ":8080", "-secret", "test", "-upstreamURL", "jenkins.example.com", "-allowedPaths", "/github-webhook,/ghprbhook"]
     restart: on-failure
 ```
 
