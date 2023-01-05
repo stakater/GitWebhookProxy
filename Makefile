@@ -4,7 +4,7 @@
 
 BUILDER ?= gitwebhookproxy-builder
 BINARY ?= GitWebhookProxy
-DOCKER_IMAGE ?= stakater/gitwebhookproxy
+DOCKER_IMAGE ?= maxisam/gitwebhookproxy
 # Default value "dev"
 DOCKER_TAG ?= dev
 REPOSITORY = ${DOCKER_IMAGE}:${DOCKER_TAG}
