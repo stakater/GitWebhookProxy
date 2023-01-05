@@ -14,11 +14,17 @@ func Parse(req *http.Request, provider providers.Provider) (*providers.Hook, err
 	}
 
 	for _, header := range provider.GetHeaderKeys() {
-		if req.Header.Get(header) != "" {
-			hook.Headers[header] = req.Header.Get(header)
-			continue
+		if req.Header.Get(header) == "" {
+			return nil, errors.New("Required header '" + header + "' not found in Request")
 		}
-		return nil, errors.New("Required header '" + header + "' not found in Request")
+
+		// Store required headers in the expected casing
+		hook.Headers[header] = req.Header.Get(header)
+	}
+
+	for header := range req.Header {
+		// Store the rest of the headers in any casing
+		hook.Headers[header] = req.Header.Get(header)
 	}
 
 	if body, err := ioutil.ReadAll(req.Body); err != nil {
