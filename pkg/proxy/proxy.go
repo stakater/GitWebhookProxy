@@ -143,13 +143,15 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
-	committer := provider.GetCommitter(*hook)
-	log.Printf("Incoming request from user: %s", committer)
-	if p.isIgnoredUser(committer) || (!p.isAllowedUser(committer)) {
-		log.Printf("Ignoring request for user: %s", committer)
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("Ignoring request for user: %s", committer)))
-		return
+	if event := provider.GetEventType(*hook); provider.IsCommitterCheckEvent(event) {
+		committer := provider.GetCommitter(*hook, event)
+		log.Printf("Incoming request from user: %s", committer)
+		if p.isIgnoredUser(committer) || (!p.isAllowedUser(committer)) {
+			log.Printf("Ignoring request for user: %s", committer)
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(fmt.Sprintf("Ignoring request for user: %s", committer)))
+			return
+		}
 	}
 
 	if len(strings.TrimSpace(p.secret)) > 0 && !provider.Validate(*hook) {
