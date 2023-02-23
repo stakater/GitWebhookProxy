@@ -73,6 +73,9 @@ spec:
         image: "stakater/gitwebhookproxy:v0.2.80"
         imagePullPolicy: IfNotPresent
         securityContext: 
+          capabilities:
+            drop:
+              - all
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           
