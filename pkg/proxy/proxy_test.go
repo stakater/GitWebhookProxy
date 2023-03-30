@@ -15,7 +15,7 @@ import (
 
 const (
 	proxyGitlabTestSecret = "testSecret"
-	proxyGitlabTestEvent  = "testEvent"
+	proxyGitlabTestEvent  = "Push Hook"
 	proxyGitlabTestBody   = "testBody"
 	httpBinURL            = "httpbin.org"
 	httpBinURLInsecure    = "http://" + httpBinURL
@@ -468,6 +468,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 		upstreamURL  string
 		allowedPaths []string
 		secret       string
+		allowedUsers []string
 	}
 	type args struct {
 		request *http.Request
@@ -604,6 +605,35 @@ func TestProxy_proxyRequest(t *testing.T) {
 			wantStatusCode: http.StatusMethodNotAllowed,
 		},
 		{
+			name: "TestProxyRequestShouldNotParseJsonWithoutAllowedOrIgnoredUsersConfigured",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURLSecure,
+				allowedPaths: []string{},
+				secret:       "",
+			},
+			args: args{
+				request: createGitlabRequestWithPayload(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, []byte("{}")),
+			},
+			wantStatusCode: http.StatusOK,
+		},
+		{
+			name: "TestProxyRequestShouldParseJsonWithAllowedOrIgnoredUsersConfigured",
+			fields: fields{
+				provider:     providers.GitlabProviderKind,
+				upstreamURL:  httpBinURLSecure,
+				allowedPaths: []string{},
+				secret:       "",
+				allowedUsers: []string{"jsmith"},
+			},
+			args: args{
+				request: createGitlabRequestWithPayload(http.MethodPost, "/post",
+					proxyGitlabTestSecret, proxyGitlabTestEvent, proxyGitlabTestPayload),
+			},
+			wantStatusCode: http.StatusOK,
+		},
+		{
 			name: "TestProxyRequestWithInvalidHttpMethod",
 			fields: fields{
 				provider:     providers.GitlabProviderKind,
@@ -737,6 +767,7 @@ func TestProxy_proxyRequest(t *testing.T) {
 				upstreamURL:  tt.fields.upstreamURL,
 				allowedPaths: tt.fields.allowedPaths,
 				secret:       tt.fields.secret,
+				allowedUsers: tt.fields.allowedUsers,
 			}
 			router := httprouter.New()
 			router.POST("/*path", p.proxyRequest)
