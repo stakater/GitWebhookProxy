@@ -18,7 +18,9 @@ type Event string
 type Provider interface {
 	GetHeaderKeys() []string
 	Validate(hook Hook) bool
-	GetCommitter(hook Hook) string
+	GetEventType(hook Hook) Event
+	IsCommitterCheckEvent(event Event) bool
+	GetCommitter(hook Hook, eventType Event) string
 	GetProviderName() string
 }
 
@@ -29,7 +31,7 @@ func assertProviderImplementations() {
 
 func NewProvider(provider string, secret string) (Provider, error) {
 	if len(provider) == 0 {
-		return nil, errors.New("Empty provider string specified")
+		return nil, errors.New("empty provider string specified")
 	}
 
 	switch strings.ToLower(provider) {
@@ -38,7 +40,7 @@ func NewProvider(provider string, secret string) (Provider, error) {
 	case GitlabProviderKind:
 		return NewGitlabProvider(secret)
 	default:
-		return nil, errors.New("Unknown Git Provider '" + provider + "' specified")
+		return nil, errors.New("unknown Git Provider '" + provider + "' specified")
 	}
 }
 
