@@ -63,7 +63,7 @@ func (p *GitlabProvider) Validate(hook Hook) bool {
 func (p *GitlabProvider) GetCommitter(hook Hook) string {
 	var payloadData GitlabPushPayload
 	if err := json.Unmarshal(hook.Payload, &payloadData); err != nil {
-		log.Printf("Gitlab hook payload unmarshalling failed")
+		log.Printf("Gitlab hook payload unmarshalling failed: %v", err)
 		return ""
 	}
 
