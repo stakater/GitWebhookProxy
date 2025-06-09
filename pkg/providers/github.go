@@ -72,13 +72,21 @@ func (p *GithubProvider) GetProviderName() string {
 	return GithubName
 }
 
-func (p *GithubProvider) GetCommitter(hook Hook) string {
+func (p *GithubProvider) GetEventType(hook Hook) Event {
 	eventType := Event(hook.Headers[XGitHubEvent])
+	log.Printf("Received event type: %v", eventType)
+	return eventType
+}
+
+func (p *GithubProvider) IsCommitterCheckEvent(event Event) bool {
+	return event == GithubPushEvent || event == GithubPullRequestEvent || event == GithubIssueCommentEvent
+}
+
+func (p *GithubProvider) GetCommitter(hook Hook, eventType Event) string {
 	var pushPayloadData GithubPushPayload
 	var pullRequestPayloadData GithubPullRequestPayload
 	var issueCommentPayloadData GithubIssueCommentPayload
 
-	log.Printf("Received event type: %v", eventType)
 	switch eventType {
 	case GithubPushEvent:
 		if err := json.Unmarshal(hook.Payload, &pushPayloadData); err != nil {

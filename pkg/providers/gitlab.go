@@ -60,14 +60,22 @@ func (p *GitlabProvider) Validate(hook Hook) bool {
 	return strings.TrimSpace(token) == strings.TrimSpace(p.secret)
 }
 
-func (p *GitlabProvider) GetCommitter(hook Hook) string {
+func (p *GitlabProvider) GetEventType(hook Hook) Event {
+	event := Event(hook.Headers[XGitlabEvent])
+	log.Printf("Received event type: %v", event)
+	return event
+}
+
+func (p *GitlabProvider) IsCommitterCheckEvent(event Event) bool {
+	return event == GitlabPushEvent
+}
+
+func (p *GitlabProvider) GetCommitter(hook Hook, eventType Event) string {
 	var payloadData GitlabPushPayload
 	if err := json.Unmarshal(hook.Payload, &payloadData); err != nil {
 		log.Printf("Gitlab hook payload unmarshalling failed")
 		return ""
 	}
-
-	eventType := Event(hook.Headers[XGitlabEvent])
 	switch eventType {
 	case GitlabPushEvent:
 		return payloadData.Username
