@@ -28,7 +28,7 @@ builder-image:
 	@docker build --network host -t "${BUILDER}" -f build/package/Dockerfile.build .
 
 binary-image: builder-image
-	@docker run --network host --rm "${BUILDER}" | docker build --network host -t "${REPOSITORY}" -f Dockerfile.run -
+	@docker run --network host --rm "${BUILDER}" | docker build --platform linux/arm64 --network host -t "${REPOSITORY}" -f Dockerfile.run -
 
 test:
 	"$(GOCMD)" test -v ./...

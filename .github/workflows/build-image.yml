@@ -1,0 +1,31 @@
+name: GitWebhookProxy Image Deploy
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/build-image.yaml
+      - build/package/Dockerfile
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build-image.yaml
+      - build/package/Dockerfile
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    uses: zeroabstraction/github-actions/.github/workflows/publish_image_workflow.yml@main
+    with:
+      dockerfile: build/package/Dockerfile
+      ecr_repository: gitwebhookproxy
+      prod_aws_role_arn: arn:aws:iam::911317316082:role/github-actions-default
+      platforms: linux/arm64
+      runs_on: ubuntu-latest-arm-4-cores
+    permissions:
+      id-token: write
+      contents: read
