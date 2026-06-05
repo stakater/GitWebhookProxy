@@ -9,7 +9,7 @@ func InArray(array interface{}, value interface{}) (bool, int) {
 		s := reflect.ValueOf(array)
 
 		for index := 0; index < s.Len(); index++ {
-			if reflect.DeepEqual(value, s.Index(index).Interface()) == true {
+			if reflect.DeepEqual(value, s.Index(index).Interface()) {
 				return true, index
 			}
 		}

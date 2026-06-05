@@ -5,29 +5,40 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
 	"github.com/stakater/GitWebhookProxy/pkg/parser"
 	"github.com/stakater/GitWebhookProxy/pkg/providers"
 	"github.com/stakater/GitWebhookProxy/pkg/utils"
 )
 
 var (
+	// transport is used for all outbound requests to the upstream. Upstream TLS
+	// certificate verification is enabled by default (InsecureSkipVerify:false)
+	// and can only be disabled via the explicit --insecureSkipVerify flag.
 	transport = &http.Transport{
 		Proxy:           http.ProxyFromEnvironment,
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: false},
 	}
 	httpClient = &http.Client{
 		Timeout:   time.Second * 30,
 		Transport: transport,
 	}
 )
+
+// SetInsecureSkipVerify controls whether the upstream's TLS certificate is
+// verified when forwarding webhooks. It is false by default; enabling it
+// disables certificate and hostname verification and should only be used for
+// trusted upstreams presenting self-signed certificates.
+func SetInsecureSkipVerify(skip bool) {
+	transport.TLSClientConfig.InsecureSkipVerify = skip
+}
 
 type Proxy struct {
 	provider     string
@@ -45,8 +56,8 @@ func (p *Proxy) isPathAllowed(path string) bool {
 	}
 
 	// Check if given passed exists in allowedPaths
-	for _, p := range p.allowedPaths {
-		allowedPath := strings.TrimSpace(p)
+	for _, allowedPath := range p.allowedPaths {
+		allowedPath = strings.TrimSpace(allowedPath)
 		incomingPath := strings.TrimSpace(path)
 		if strings.TrimSuffix(allowedPath, "/") ==
 			strings.TrimSuffix(incomingPath, "/") || strings.HasPrefix(incomingPath, allowedPath) {
@@ -84,7 +95,7 @@ func (p *Proxy) isAllowedUser(committer string) bool {
 
 func (p *Proxy) redirect(hook *providers.Hook, redirectURL string) (*http.Response, error) {
 	if hook == nil {
-		return nil, errors.New("Cannot redirect with nil Hook")
+		return nil, errors.New("cannot redirect with nil hook")
 	}
 
 	// Parse url to check validity
@@ -111,10 +122,9 @@ func (p *Proxy) redirect(hook *providers.Hook, redirectURL string) (*http.Respon
 	}
 
 	return httpClient.Do(req)
-
 }
 
-func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request) {
 	redirectURL := p.upstreamURL + r.URL.Path
 
 	if r.URL.RawQuery != "" {
@@ -148,12 +158,14 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 	if p.isIgnoredUser(committer) || (!p.isAllowedUser(committer)) {
 		log.Printf("Ignoring request for user: %s", committer)
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("Ignoring request for user: %s", committer)))
+		if _, err := fmt.Fprintf(w, "Ignoring request for user: %s", committer); err != nil {
+			log.Printf("Error writing response: %v", err)
+		}
 		return
 	}
 
 	if len(strings.TrimSpace(p.secret)) > 0 && !provider.Validate(*hook) {
-		log.Printf("Error Validating Hook: %v", err)
+		log.Printf("Error Validating Hook")
 		http.Error(w, "Error validating Hook", http.StatusBadRequest)
 		return
 	}
@@ -171,10 +183,10 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
-	log.Printf("Redirected incomming request '%s' to '%s' with Response: '%s'\n",
+	log.Printf("Redirected incoming request '%s' to '%s' with Response: '%s'\n",
 		r.URL, redirectURL, resp.Status)
 
-	responseBody, err := ioutil.ReadAll(resp.Body)
+	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Error Reading upstream '%s' response body\n", r.URL)
 		http.Error(w, "Error Reading upstream '"+redirectURL+"' Response body", http.StatusInternalServerError)
@@ -182,13 +194,17 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 	}
 
 	w.WriteHeader(resp.StatusCode)
-	w.Write(responseBody)
+	if _, err := w.Write(responseBody); err != nil {
+		log.Printf("Error writing response body: %v", err)
+	}
 }
 
 // Health Check Endpoint
-func (p *Proxy) health(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+func (p *Proxy) health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
-	w.Write([]byte("I'm Healthy and I know it! ;) "))
+	if _, err := fmt.Fprint(w, "I'm Healthy and I know it! ;) "); err != nil {
+		log.Printf("Error writing health check response: %v", err)
+	}
 }
 
 // Run starts Proxy server
@@ -197,25 +213,26 @@ func (p *Proxy) Run(listenAddress string) error {
 		panic("Cannot create Proxy with empty listenAddress")
 	}
 
-	router := httprouter.New()
-	router.GET("/health", p.health)
-	router.POST("/*path", p.proxyRequest)
+	router := chi.NewRouter()
+	router.Get("/health", p.health)
+	router.Get("/assets/*", p.serveAssets)
+	router.Post("/*", p.proxyRequest)
 
 	log.Printf("Listening at: %s", listenAddress)
 	return http.ListenAndServe(listenAddress, router)
 }
 
 func NewProxy(upstreamURL string, allowedPaths []string,
-	provider string, secret string, ignoredUsers []string) (*Proxy, error) {
+	provider string, secret string, ignoredUsers []string, allowedUsers []string) (*Proxy, error) {
 	// Validate Params
 	if len(strings.TrimSpace(upstreamURL)) == 0 {
-		return nil, errors.New("Cannot create Proxy with empty upstreamURL")
+		return nil, errors.New("cannot create proxy with empty upstreamURL")
 	}
 	if len(strings.TrimSpace(provider)) == 0 {
-		return nil, errors.New("Cannot create Proxy with empty provider")
+		return nil, errors.New("cannot create proxy with empty provider")
 	}
 	if allowedPaths == nil {
-		return nil, errors.New("Cannot create Proxy with nil allowedPaths")
+		return nil, errors.New("cannot create proxy with nil allowedPaths")
 	}
 
 	return &Proxy{
@@ -224,5 +241,6 @@ func NewProxy(upstreamURL string, allowedPaths []string,
 		allowedPaths: allowedPaths,
 		secret:       secret,
 		ignoredUsers: ignoredUsers,
+		allowedUsers: allowedUsers,
 	}, nil
 }

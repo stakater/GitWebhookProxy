@@ -2,7 +2,7 @@ package parser
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/stakater/GitWebhookProxy/pkg/providers"
@@ -21,7 +21,7 @@ func Parse(req *http.Request, provider providers.Provider) (*providers.Hook, err
 		return nil, errors.New("Required header '" + header + "' not found in Request")
 	}
 
-	if body, err := ioutil.ReadAll(req.Body); err != nil {
+	if body, err := io.ReadAll(req.Body); err != nil {
 		return nil, err
 	} else {
 		hook.Payload = body

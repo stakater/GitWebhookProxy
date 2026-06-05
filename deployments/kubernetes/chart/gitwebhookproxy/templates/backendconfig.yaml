@@ -1,0 +1,35 @@
+{{- if and .Values.gitWebhookProxy.ingress.enabled .Values.gitWebhookProxy.ingress.gcp.enabled .Values.gitWebhookProxy.ingress.gcp.backend.enabled }}
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  {{- if .Values.gitWebhookProxy.ingress.gcp.backend.name }}
+  name: {{ .Values.gitWebhookProxy.ingress.gcp.backend.name }}
+  {{- else if .Values.gitWebhookProxy.useCustomName }}
+  name: {{ .Values.gitWebhookProxy.customName }}-backend
+  {{- else }}
+  name: {{ template "gitwebhookproxy.name" . }}-backend
+  {{- end }}
+  labels:
+{{ include "gitwebhookproxy.labels.stakater" . | indent 4 }}
+{{ include "gitwebhookproxy.labels.chart" . | indent 4 }}
+spec:
+  {{- if .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.enabled }}
+  healthCheck:
+    checkIntervalSec: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.checkIntervalSec }}
+    timeoutSec: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.timeoutSec }}
+    healthyThreshold: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.healthyThreshold }}
+    unhealthyThreshold: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.unhealthyThreshold }}
+    type: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.type }}
+    requestPath: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.requestPath }}
+    port: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.port }}
+    {{- if eq .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.proxyHeader "NONE" }}
+    proxyHeader: NONE
+    {{- else if .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.proxyHeader }}
+    proxyHeader: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.proxyHeader }}
+    {{- end }}
+    {{- if .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.logConfig.enabled }}
+    logConfig:
+      enabled: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.logConfig.enabled }}
+    {{- end }}
+  {{- end }}
+{{- end }}

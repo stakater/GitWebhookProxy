@@ -91,10 +91,27 @@ spec:
             {{- else }}
               name: {{ template "gitwebhookproxy.name" . }}
             {{- end }}
+        {{- if .Values.gitWebhookProxy.config.rateLimit.enabled }}
+        - name: GWP_RATE_LIMIT_RPS
+          value: "{{ .Values.gitWebhookProxy.config.rateLimit.requestsPerSecond }}"
+        - name: GWP_RATE_LIMIT_BURST
+          value: "{{ .Values.gitWebhookProxy.config.rateLimit.burstSize }}"
+        {{- end }}
+        {{- if .Values.gitWebhookProxy.config.retry.enabled }}
+        - name: GWP_RETRY_MAX
+          value: "{{ .Values.gitWebhookProxy.config.retry.maxRetries }}"
+        - name: GWP_RETRY_INITIAL_DELAY
+          value: "{{ .Values.gitWebhookProxy.config.retry.initialDelay }}"
+        - name: GWP_RETRY_MAX_DELAY
+          value: "{{ .Values.gitWebhookProxy.config.retry.maxDelay }}"
+        {{- end }}
         image: "{{ .Values.gitWebhookProxy.image.name }}:{{ .Values.gitWebhookProxy.image.tag }}"
         imagePullPolicy: {{ .Values.gitWebhookProxy.image.pullPolicy }}
         {{- with .Values.gitWebhookProxy.securityContext }}
         securityContext: {{ . | toYaml | nindent 10 }}
+        {{- end }}
+        {{- with .Values.gitWebhookProxy.resources }}
+        resources: {{ . | toYaml | nindent 10 }}
         {{- end }}
       {{- if .Values.gitWebhookProxy.useCustomName }}
         name: {{ .Values.gitWebhookProxy.customName }}
@@ -102,22 +119,22 @@ spec:
         name: {{ template "gitwebhookproxy.name" . }}
       {{- end }}
         livenessProbe:
-          failureThreshold: 5
-          httpGet:
-            path: /health
-            port: 8080
-            scheme: HTTP
-          initialDelaySeconds: 15
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 5
-        readinessProbe:
           failureThreshold: 3
           httpGet:
             path: /health
             port: 8080
             scheme: HTTP
           initialDelaySeconds: 10
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 5
+          periodSeconds: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.checkIntervalSec }}
+          successThreshold: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.healthyThreshold }}
+          timeoutSeconds: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.timeoutSec }}
+        readinessProbe:
+          failureThreshold: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.unhealthyThreshold }}
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.checkIntervalSec }}
+          successThreshold: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.healthyThreshold }}
+          timeoutSeconds: {{ .Values.gitWebhookProxy.ingress.gcp.backend.healthCheck.timeoutSec }}

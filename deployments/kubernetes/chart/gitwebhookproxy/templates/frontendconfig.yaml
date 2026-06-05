@@ -1,0 +1,27 @@
+{{- if and .Values.gitWebhookProxy.ingress.enabled .Values.gitWebhookProxy.ingress.gcp.enabled }}
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  {{- if .Values.gitWebhookProxy.ingress.gcp.name }}
+  name: {{ .Values.gitWebhookProxy.ingress.gcp.name }}
+  {{- else if .Values.gitWebhookProxy.useCustomName }}
+  name: {{ .Values.gitWebhookProxy.customName }}-frontend
+  {{- else }}
+  name: {{ template "gitwebhookproxy.name" . }}-frontend
+  {{- end }}
+  labels:
+{{ include "gitwebhookproxy.labels.stakater" . | indent 4 }}
+{{ include "gitwebhookproxy.labels.chart" . | indent 4 }}
+spec:
+  {{- if .Values.gitWebhookProxy.ingress.gcp.sslPolicy.enabled }}
+  sslPolicy: {{ .Values.gitWebhookProxy.ingress.gcp.sslPolicy.name }}
+  {{- end }}
+
+  {{- if .Values.gitWebhookProxy.ingress.gcp.redirects.enabled }}
+  redirectToHttps:
+    enabled: true
+    {{- if .Values.gitWebhookProxy.ingress.gcp.redirects.responseCode }}
+    responseCodeName: {{ .Values.gitWebhookProxy.ingress.gcp.redirects.responseCode }}
+    {{- end }}
+  {{- end }}
+{{- end }}

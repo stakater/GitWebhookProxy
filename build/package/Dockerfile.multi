@@ -1,0 +1,28 @@
+FROM golang:1.26.4-alpine as builder
+LABEL maintainer="Stakater Team"
+ARG TARGETARCH
+
+RUN apk update
+
+RUN apk -v --update \
+    add git build-base && \
+    rm -rf /var/cache/apk/* && \
+    mkdir -p "$GOPATH/src/github.com/stakater/GitWebhookProxy"
+# No need for packr anymore, using Go's native embed package
+
+ADD . "$GOPATH/src/github.com/stakater/GitWebhookProxy"
+
+WORKDIR "$GOPATH/src/github.com/stakater/GitWebhookProxy"
+
+RUN go env -w GOBIN=/usr/local/bin && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -a --installsuffix cgo --ldflags="-s" -o /usr/local/bin/GitWebhookProxy
+
+FROM alpine:3.21.3
+
+RUN apk add --update ca-certificates && \
+    rm -rf /var/cache/apk/*
+
+COPY --from=builder /usr/local/bin/GitWebhookProxy /bin/GitWebhookProxy
+
+ENTRYPOINT ["/bin/GitWebhookProxy"]

@@ -1,7 +1,6 @@
 # Generated from /kubernetes/templates/chart/values.yaml.tmpl
 
 kubernetes:
-  host: https://kubernetes.default
 
 gitWebhookProxy:
   replicas: 1
@@ -17,11 +16,25 @@ gitWebhookProxy:
     name: stakater/gitwebhookproxy
     tag: "v0.2.80"
     pullPolicy: IfNotPresent
+  # Resource limits and requests
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
   config:
+    # Provider configuration with defaults
+    # Supported values: github, gitlab, bitbucket
     provider: github
+    # Upstream service URL to forward webhooks to
     upstreamURL: "https://jenkins.tools.stackator.com"
+    # Comma-separated list of allowed webhook paths
     allowedPaths: "/github-webhook,/project"
+    # Secret for webhook validation
     secret: ""
+    # User filtering configuration
     ignoredUsers: "stakater-user"
     allowedUsers: "myuser"
   service:
@@ -29,10 +42,11 @@ gitWebhookProxy:
       expose: "true"
     annotations: {}
     ports:
-      - name: http
-        port: 80
-        protocol: TCP
-        targetPort: 8080
+      name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+      servicePort: 80
   securityContext:
     readOnlyRootFilesystem: true
     allowPrivilegeEscalation: false
@@ -49,3 +63,45 @@ gitWebhookProxy:
     tlsSecretName: ""
     serviceName: gitwebhookproxy
     servicePort: 80
+    # GCP specific configurations
+    gcp:
+      # Enable GCP FrontendConfig
+      enabled: false
+      # Name of the FrontendConfig resource
+      name: ""
+      # Backend configuration
+      backend:
+        # Enable backend configuration
+        enabled: false
+        # Name of the backend service
+        name: ""
+        # Health check configuration
+        healthCheck:
+          # Enable health check
+          enabled: true
+          # Health check configuration with optimized defaults
+          checkIntervalSec: 10
+          timeoutSec: 3
+          healthyThreshold: 2
+          unhealthyThreshold: 3
+          type: HTTP
+          port: 8080
+          requestPath: "/health"
+          # Additional health check configuration
+          # https://cloud.google.com/kubernetes-engine/docs/how-to/ingress-features#direct_health
+          proxyHeader: NONE
+          # Health check logging configuration
+          logConfig:
+            enabled: true
+      # SSL policy configuration
+      sslPolicy:
+        # Enable SSL policy
+        enabled: false
+        # Name of the SSL policy
+        name: "modern-ssl-policy"
+      # Redirect configuration
+      redirects:
+        enabled: false
+        # Redirect configurations
+        # https://cloud.google.com/kubernetes-engine/docs/how-to/ingress-features#https_redirect
+        responseCode: MOVED_PERMANENTLY_DEFAULT

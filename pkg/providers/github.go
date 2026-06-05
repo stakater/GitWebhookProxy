@@ -55,10 +55,8 @@ func (p *GithubProvider) GetHeaderKeys() []string {
 	}
 }
 
-// TODO: Update implementation and tests
 // Github Signature Validation:
 func (p *GithubProvider) Validate(hook Hook) bool {
-
 	githubSignature := hook.Headers[XHubSignature]
 	if len(githubSignature) != SignatureLength ||
 		!strings.HasPrefix(githubSignature, SignaturePrefix) {

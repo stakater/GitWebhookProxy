@@ -1,9 +1,9 @@
 # Generated from /kubernetes/templates/chart/Chart.yaml.tmpl
 
-apiVersion: v1
+apiVersion: v2
 name: gitwebhookproxy
 description: GitWebhookProxy chart that runs on kubernetes
-version: v0.2.80
+version: v0.2.81
 keywords:
   - GitWebhookProxy
   - kubernetes

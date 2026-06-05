@@ -1,8 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-{{- if .Values.gitWebhookProxy.service.annotations }}
   annotations:
+{{- if and .Values.gitWebhookProxy.ingress.enabled .Values.gitWebhookProxy.ingress.gcp.enabled .Values.gitWebhookProxy.ingress.gcp.backend.enabled }}
+    {{- if .Values.gitWebhookProxy.ingress.gcp.backend.name }}
+    cloud.google.com/backend-config: '{"default": "{{ .Values.gitWebhookProxy.ingress.gcp.backend.name }}"}'
+    {{- else if .Values.gitWebhookProxy.useCustomName }}
+    cloud.google.com/backend-config: '{"default": "{{ .Values.gitWebhookProxy.customName }}-backend"}'
+    {{- else }}
+    cloud.google.com/backend-config: '{"default": "{{ template "gitwebhookproxy.name" . }}-backend"}'
+    {{- end }}
+{{- end }}
+{{- if .Values.gitWebhookProxy.service.annotations }}
 {{ toYaml .Values.gitWebhookProxy.service.annotations | indent 4 }}
 {{- end }}
   labels:
@@ -17,10 +26,11 @@ metadata:
   name: {{ template "gitwebhookproxy.name" . }}
 {{- end }}
 spec:
+  type: NodePort
   ports:
   - name: http
-    port: 80
+    port: {{ .Values.gitWebhookProxy.service.ports.servicePort }}
     protocol: TCP
-    targetPort: 8080
+    targetPort: {{ .Values.gitWebhookProxy.service.ports.targetPort }}
   selector:
 {{ include "gitwebhookproxy.labels.selector" . | indent 4 }}
