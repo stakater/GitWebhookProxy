@@ -18,6 +18,7 @@ var (
 	allowedPaths  = pflag.String("allowedPaths", "", "Comma-Separated String List of allowed paths")
 	ignoredUsers  = pflag.String("ignoredUsers", "", "Comma-Separated String List of users to ignore while proxying Webhook request")
 	allowedUsers  = pflag.String("allowedUser", "", "Comma-Separated String List of users to allow while proxying Webhook request")
+	insecureTLS   = pflag.Bool("insecureSkipVerify", false, "Skip TLS certificate verification of the upstream. INSECURE: only enable for trusted upstreams using self-signed certificates.")
 )
 
 func validateRequiredFlags() {
@@ -67,6 +68,8 @@ func main() {
 				name = "secret"
 			case "LISTEN":
 				name = "listen"
+			case "INSECURESKIPVERIFY":
+				name = "insecureSkipVerify"
 			default:
 				name = strings.ToLower(envName)
 			}
@@ -103,6 +106,12 @@ func main() {
 	}
 
 	log.Printf("Stakater Git WebHook Proxy started with provider '%s'\n", lowerProvider)
+
+	if *insecureTLS {
+		log.Println("WARNING: upstream TLS certificate verification is disabled (insecureSkipVerify=true)")
+	}
+	proxy.SetInsecureSkipVerify(*insecureTLS)
+
 	p, err := proxy.NewProxy(*upstreamURL, allowedPathsArray, lowerProvider, *secret, ignoredUsersArray, allowedUsersArray)
 	if err != nil {
 		log.Fatal(err)

@@ -19,15 +19,26 @@ import (
 )
 
 var (
+	// transport is used for all outbound requests to the upstream. Upstream TLS
+	// certificate verification is enabled by default (InsecureSkipVerify:false)
+	// and can only be disabled via the explicit --insecureSkipVerify flag.
 	transport = &http.Transport{
 		Proxy:           http.ProxyFromEnvironment,
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: false},
 	}
 	httpClient = &http.Client{
 		Timeout:   time.Second * 30,
 		Transport: transport,
 	}
 )
+
+// SetInsecureSkipVerify controls whether the upstream's TLS certificate is
+// verified when forwarding webhooks. It is false by default; enabling it
+// disables certificate and hostname verification and should only be used for
+// trusted upstreams presenting self-signed certificates.
+func SetInsecureSkipVerify(skip bool) {
+	transport.TLSClientConfig.InsecureSkipVerify = skip
+}
 
 type Proxy struct {
 	provider     string

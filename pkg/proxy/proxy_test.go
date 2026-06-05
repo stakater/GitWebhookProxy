@@ -1111,3 +1111,24 @@ func TestProxy_isAllowedUser(t *testing.T) {
 		})
 	}
 }
+
+func TestDefaultTLSVerificationEnabled(t *testing.T) {
+	if transport.TLSClientConfig.InsecureSkipVerify {
+		t.Fatal("upstream TLS verification must be enabled by default (InsecureSkipVerify should be false)")
+	}
+}
+
+func TestSetInsecureSkipVerify(t *testing.T) {
+	// Restore the secure default after the test so other tests are unaffected.
+	defer SetInsecureSkipVerify(false)
+
+	SetInsecureSkipVerify(true)
+	if !transport.TLSClientConfig.InsecureSkipVerify {
+		t.Fatal("SetInsecureSkipVerify(true) should disable TLS verification")
+	}
+
+	SetInsecureSkipVerify(false)
+	if transport.TLSClientConfig.InsecureSkipVerify {
+		t.Fatal("SetInsecureSkipVerify(false) should re-enable TLS verification")
+	}
+}
