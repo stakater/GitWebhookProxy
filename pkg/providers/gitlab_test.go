@@ -141,6 +141,62 @@ func TestGitlabProvider_Validate(t *testing.T) {
 			want: false,
 		},
 		{
+			// A PREFIX OF THE SECRET MUST BE REFUSED, and this is the case a
+			// timing attack builds on: it recovers the token one leading byte
+			// at a time, so every partial match has to be as wrong as a
+			// completely different string. `subtle.ConstantTimeCompare` is what
+			// makes that true; `==` was not.
+			name: "TestValidateWithPrefixOfSecret",
+			fields: fields{
+				secret: gitlabTestSecret,
+			},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{
+						XGitlabToken: gitlabTestSecret[:len(gitlabTestSecret)-1],
+					},
+					Payload: nil,
+				},
+			},
+			want: false,
+		},
+		{
+			// Same secret with one byte changed at the END. A length-equal
+			// near-miss is the other half of the same attack.
+			name: "TestValidateWithLastByteChanged",
+			fields: fields{
+				secret: gitlabTestSecret,
+			},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{
+						XGitlabToken: gitlabTestSecret[:len(gitlabTestSecret)-1] + "X",
+					},
+					Payload: nil,
+				},
+			},
+			want: false,
+		},
+		{
+			// Surrounding whitespace is trimmed on both sides, which was the
+			// old behaviour and is preserved deliberately: some proxies pad the
+			// header, and rejecting those would be a regression for working
+			// deployments.
+			name: "TestValidateTrimsSurroundingWhitespace",
+			fields: fields{
+				secret: gitlabTestSecret,
+			},
+			args: args{
+				hook: Hook{
+					Headers: map[string]string{
+						XGitlabToken: "  " + gitlabTestSecret + "  ",
+					},
+					Payload: nil,
+				},
+			},
+			want: true,
+		},
+		{
 			name: "TestValidateWithCorrectTokenValue",
 			fields: fields{
 				secret: gitlabTestSecret,

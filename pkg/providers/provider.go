@@ -16,7 +16,23 @@ const (
 type Event string
 
 type Provider interface {
+	// GetHeaderKeys lists headers a request MUST carry. The parser rejects a
+	// request missing any of them.
 	GetHeaderKeys() []string
+
+	// GetOptionalHeaderKeys lists headers the parser should forward WHEN
+	// PRESENT and never require.
+	//
+	// The distinction did not exist and was needed the moment a provider
+	// accepted more than one signature header. GitHub sends both
+	// `X-Hub-Signature` and `X-Hub-Signature-256`, so listing the SHA-256 one
+	// as required made BOTH mandatory — and a delivery carrying only the
+	// modern header, which is what a receiver should prefer, was rejected
+	// before `Validate` ever saw it. Caught by running the built image against
+	// a real signed payload rather than by the unit tests, which call
+	// `Validate` directly and never go through the parser.
+	GetOptionalHeaderKeys() []string
+
 	Validate(hook Hook) bool
 	GetCommitter(hook Hook) string
 	GetProviderName() string

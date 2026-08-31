@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jbcom/GitWebhookProxy/pkg/parser"
+	"github.com/jbcom/GitWebhookProxy/pkg/providers"
+	"github.com/jbcom/GitWebhookProxy/pkg/utils"
 	"github.com/julienschmidt/httprouter"
-	"github.com/stakater/GitWebhookProxy/pkg/parser"
-	"github.com/stakater/GitWebhookProxy/pkg/providers"
-	"github.com/stakater/GitWebhookProxy/pkg/utils"
 )
 
 var (
@@ -143,18 +143,40 @@ func (p *Proxy) proxyRequest(w http.ResponseWriter, r *http.Request, params http
 		return
 	}
 
+	// SIGNATURE FIRST. AUTHORISATION SECOND. THIS ORDER WAS THE OTHER WAY AROUND
+	// AND THAT WAS A HOLE.
+	//
+	// The user filter used to run first and answer 200 to anything it decided
+	// to ignore — before the signature was ever checked. So an UNSIGNED request
+	// whose payload carried no committer, or a committer on the ignore list,
+	// got a 200 from a proxy that had not authenticated it at all.
+	//
+	// Measured against the built image, `GWP_SECRET` set, no signature header
+	// whatsoever:
+	//
+	//     Incoming request from user:
+	//     Ignoring request for user:
+	//     -> HTTP 200
+	//
+	// It never reached upstream, so it was not a forwarding bug. It was worse
+	// in a quieter way: a public endpoint reporting success for a request it
+	// had refused to authenticate, which is exactly what a probe looks for.
+	//
+	// The committer name is read from the PAYLOAD, and the payload is only
+	// trustworthy after the signature says so. Deciding anything on it first —
+	// including deciding to ignore it — is deciding on attacker-supplied data.
+	if len(strings.TrimSpace(p.secret)) > 0 && !provider.Validate(*hook) {
+		log.Printf("Error Validating Hook for '%s'", r.URL)
+		http.Error(w, "Error validating Hook", http.StatusBadRequest)
+		return
+	}
+
 	committer := provider.GetCommitter(*hook)
 	log.Printf("Incoming request from user: %s", committer)
 	if p.isIgnoredUser(committer) || (!p.isAllowedUser(committer)) {
 		log.Printf("Ignoring request for user: %s", committer)
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(fmt.Sprintf("Ignoring request for user: %s", committer)))
-		return
-	}
-
-	if len(strings.TrimSpace(p.secret)) > 0 && !provider.Validate(*hook) {
-		log.Printf("Error Validating Hook: %v", err)
-		http.Error(w, "Error validating Hook", http.StatusBadRequest)
 		return
 	}
 

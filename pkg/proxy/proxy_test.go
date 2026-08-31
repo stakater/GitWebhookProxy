@@ -9,13 +9,15 @@ import (
 	"testing"
 
 	httpmock "github.com/jarcoal/httpmock"
+	"github.com/jbcom/GitWebhookProxy/pkg/providers"
 	"github.com/julienschmidt/httprouter"
-	"github.com/stakater/GitWebhookProxy/pkg/providers"
 )
 
 const (
 	proxyGitlabTestSecret = "testSecret"
 	proxyGitlabTestEvent  = "testEvent"
+	proxyGithubTestSecret = "myGithubTestSecret"
+	proxyGithubTestEvent  = "push"
 	proxyGitlabTestBody   = "testBody"
 	httpBinURL            = "httpbin.org"
 	httpBinURLInsecure    = "http://" + httpBinURL
@@ -449,6 +451,18 @@ func createGitlabRequestWithPayload(method string, path string, tokenHeader stri
 	return req
 }
 
+// A github delivery carrying NO signature header, which is what an unsigned
+// probe looks like. The parser treats both signature headers as optional, so
+// this reaches `Validate` — where it must be refused.
+func createGithubRequestWithoutSignature(method string, path string,
+	eventHeader string, body []byte) *http.Request {
+	req := httptest.NewRequest(method, path, bytes.NewReader(body))
+	req.Header.Add(providers.XGitHubEvent, eventHeader)
+	req.Header.Add(providers.XGitHubDelivery, "test-delivery")
+	req.Header.Add(providers.ContentTypeHeader, providers.DefaultContentTypeHeaderValue)
+	return req
+}
+
 func createRequestWithWrongHeadersKeys(method string, path string, tokenHeader string,
 	eventHeader string, body string) *http.Request {
 	req := httptest.NewRequest(method, path, bytes.NewReader([]byte(body)))
@@ -478,6 +492,39 @@ func TestProxy_proxyRequest(t *testing.T) {
 		args           args
 		wantStatusCode int
 	}{
+		{
+			// THE ORDERING BUG, PINNED — AND IT HAS TO BE A GITHUB REQUEST.
+			//
+			// `isIgnoredUser` has a special case: an EMPTY committer on the
+			// github provider is treated as ignored (proxy.go, "committer == ''
+			// && p.provider == GithubName"). While the user filter ran BEFORE
+			// signature validation, that combination answered 200 to a request
+			// the proxy had never authenticated.
+			//
+			// Measured against the built image with GWP_SECRET set and no
+			// signature header at all:
+			//
+			//     Incoming request from user:
+			//     Ignoring request for user:
+			//     -> HTTP 200
+			//
+			// A first attempt at this test used the gitlab provider and passed
+			// with the bug reintroduced — gitlab has no empty-committer case,
+			// so it never reached the branch. Verified the other way now:
+			// swapping the two blocks back in proxy.go fails this test.
+			name: "TestProxyRequestRejectsUnsignedGithubRequestWithNoCommitter",
+			fields: fields{
+				provider:     providers.GithubProviderKind,
+				upstreamURL:  httpBinURLSecure,
+				allowedPaths: []string{},
+				secret:       proxyGithubTestSecret,
+			},
+			args: args{
+				request: createGithubRequestWithoutSignature(http.MethodPost, "/post",
+					proxyGithubTestEvent, []byte(`{}`)),
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
 		{
 			name: "TestProxyRequestWithValidValues",
 			fields: fields{

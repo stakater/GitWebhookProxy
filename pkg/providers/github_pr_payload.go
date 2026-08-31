@@ -38,12 +38,12 @@ type GithubPullRequestPayload struct {
 			Type              string `json:"type"`
 			SiteAdmin         bool   `json:"site_admin"`
 		} `json:"user"`
-		Body              string    `json:"body"`
-		CreatedAt         time.Time `json:"created_at"`
-		UpdatedAt         time.Time `json:"updated_at"`
-		ClosedAt          time.Time `json:"closed_at"`
-		MergedAt          time.Time `json:"merged_at"`
-		MergeCommitSha    string    `json:"merge_commit_sha"`
+		Body           string    `json:"body"`
+		CreatedAt      time.Time `json:"created_at"`
+		UpdatedAt      time.Time `json:"updated_at"`
+		ClosedAt       time.Time `json:"closed_at"`
+		MergedAt       time.Time `json:"merged_at"`
+		MergeCommitSha string    `json:"merge_commit_sha"`
 		RequestedTeams []struct {
 			Name            string `json:"body"`
 			ID              int64  `json:"id"`
@@ -65,11 +65,11 @@ type GithubPullRequestPayload struct {
 			Color   string `json:"color"`
 			Default bool   `json:"default"`
 		} `json:"labels"`
-		CommitsURL        string    `json:"commits_url"`
-		ReviewCommentsURL string    `json:"review_comments_url"`
-		ReviewCommentURL  string    `json:"review_comment_url"`
-		CommentsURL       string    `json:"comments_url"`
-		StatusesURL       string    `json:"statuses_url"`
+		CommitsURL        string `json:"commits_url"`
+		ReviewCommentsURL string `json:"review_comments_url"`
+		ReviewCommentURL  string `json:"review_comment_url"`
+		CommentsURL       string `json:"comments_url"`
+		StatusesURL       string `json:"statuses_url"`
 		Head              struct {
 			Label string `json:"label"`
 			Ref   string `json:"ref"`
